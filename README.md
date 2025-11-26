@@ -6,6 +6,6 @@
 # Implementações
  * [Edmonds-Karp][edmonds_karp]
 
-[edmonds_karp]: ./Implementações/1. Edmonds-Karp/README.md
+[edmonds_karp]: ./Implementações/1.%20Edmonds-Karp/README.md
 [baixar_pdf]: https://img.shields.io/badge/PDF-Baixar-red?style=for-the-badge&logo=adobeacrobatreader
 [baixar_ic]: https://github.com/GabrielFrigo4/IC_Networks_Flow/releases/latest/download/ic.pdf 
