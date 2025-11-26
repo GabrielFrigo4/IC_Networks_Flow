@@ -4,30 +4,29 @@
 
  ```cpp
  #include <iostream>
- #include <cstdint>
- #include <cstddef>
  #include <vector>
  #include <queue>
 
+ #define long long long
+ #define INF static_cast<long>(1e14)
  #define NONE -1
- #define INF static_cast<int32_t>(1e7)
 
- int32_t n;
- std::vector<std::vector<int32_t>> capacity;
- std::vector<std::vector<int32_t>> adj;
+ long n;
+ std::vector<std::vector<long>> capacity;
+ std::vector<std::vector<long>> adj;
 
- int32_t bfs(int32_t s, int32_t t, std::vector<int32_t>& parent) {
+ long bfs(long s, long t, std::vector<long>& parent) {
      std::fill(parent.begin(), parent.end(), NONE);
-     std::queue<pair<int32_t, int32_t>> q;
+     std::queue<pair<long, long>> q;
      q.push({ s, INF });
      while (!q.empty()) {
-         int32_t cur = std::get<0>(q.front());
-         int32_t flow = std::get<1>(q.front());
+         long cur = std::get<0>(q.front());
+         long flow = std::get<1>(q.front());
          q.pop();
-         for (int32_t next : adj[cur]) {
+         for (long next : adj[cur]) {
              if (parent[next] == NONE && capacity[cur][next]) {
                  parent[next] = cur;
-                 int32_t new_flow = std::min(flow, capacity[cur][next]);
+                 long new_flow = std::min(flow, capacity[cur][next]);
                  if (next == t) {
                      return new_flow;
                  }
@@ -38,12 +37,12 @@
      return 0;
  }
 
- int32_t maxflow(int32_t s, int32_t t) {
-     int32_t flow = 0;
-     std::vector<int32_t> parent(n);
-     while (int32_t new_flow = bfs(s, t, parent)) {
+ long maxflow(long s, long t) {
+     long flow = 0;
+     std::vector<long> parent(n);
+     while (long new_flow = bfs(s, t, parent)) {
          flow += new_flow;
-         for (int32_t cur = s; cur != s; cur = parent[cur]) {
+         for (long cur = s; cur != s; cur = parent[cur]) {
              capacity[parent[cur]][cur] -= new_flow;
              capacity[cur][parent[cur]] += new_flow;
          }
