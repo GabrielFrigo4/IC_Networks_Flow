@@ -7,7 +7,7 @@
 #define INF static_cast<long>(1e14)
 #define NONE -1
 
-long bfs(long s, long t, std::vector<long> &parent, std::vector<std::vector<long>> &adj, std::vector<std::vector<long>> &capacity) {
+long bfs(long s, long t, std::vector<long>& parent, std::vector<std::vector<long>> &adj, std::vector<std::vector<long>> &capacity) {
     std::fill(parent.begin(), parent.end(), NONE);
     std::queue<std::pair<long, long>> q;
     q.push({ s, INF });
@@ -29,7 +29,7 @@ long bfs(long s, long t, std::vector<long> &parent, std::vector<std::vector<long
     return 0;
 }
 
-long maxflow(long s, long t, std::vector<std::vector<long>> &adj, std::vector<std::vector<long>> &capacity) {
+long maxflow(long s, long t, std::vector<std::vector<long>> adj, std::vector<std::vector<long>> capacity) {
     long flow = 0;
     std::vector<long> parent(adj.size());
     while (long new_flow = bfs(s, t, parent, adj, capacity)) {
@@ -42,21 +42,32 @@ long maxflow(long s, long t, std::vector<std::vector<long>> &adj, std::vector<st
     return flow;
 }
 
-int main() {
+void task() {
     long n, m;
     std::cin >> n >> m;
-    std::vector<long> a(n);
-    for (auto &_a : a) {
-        std::cin >> _a;
-    }
     std::vector<std::vector<long>> adj(n, std::vector<long>());
-    std::vector<std::vector<long>> capacity(n, std::vector<long>(n, 0));
+    std::vector<std::vector<long>> capacity(n, std::vector<long>(n));
     while (m--) {
         long i, j, c;
         std::cin >> i >> j >> c;
         --i, --j;
         adj[i].push_back(j);
-        capacity[i][j] += c;
+        adj[j].push_back(i);
+        capacity[i][j] = c;
+        capacity[j][i] = c;
+    }
+    long flow = INF;
+    for (long t = 1; t < n; t++) {
+        flow = std::min(flow, maxflow(0, t, adj, capacity));
+    }
+    std::cout << flow << std::endl;
+}
+
+int main(void) {
+    int32_t t;
+    std::cin >> t;
+    while(t--) {
+        task();
     }
     return 0;
 }

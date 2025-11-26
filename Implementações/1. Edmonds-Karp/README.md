@@ -1,9 +1,11 @@
 # [Edmonds-Karp](https://cp-algorithms.com/graph/edmonds_karp.html)
- 1. [Array and Operations](https://codeforces.com/contest/498/problem/c)
- 2. [Red-Blue Graph](https://codeforces.com/contest/1288/problem/f)
+ 1. [Time Travel](https://judge.beecrowd.com/en/problems/view/2082)
+ 2. [Array and Operations](https://codeforces.com/contest/498/problem/c)
+ 3. [Red-Blue Graph](https://codeforces.com/contest/1288/problem/f)
 
  ```cpp
  #include <iostream>
+ #include <utility>
  #include <vector>
  #include <queue>
 
@@ -11,13 +13,9 @@
  #define INF static_cast<long>(1e14)
  #define NONE -1
 
- long n;
- std::vector<std::vector<long>> capacity;
- std::vector<std::vector<long>> adj;
-
- long bfs(long s, long t, std::vector<long>& parent) {
+ long bfs(long s, long t, std::vector<long> &parent, std::vector<std::vector<long>> &adj, std::vector<std::vector<long>> &capacity) {
      std::fill(parent.begin(), parent.end(), NONE);
-     std::queue<pair<long, long>> q;
+     std::queue<std::pair<long, long>> q;
      q.push({ s, INF });
      while (!q.empty()) {
          long cur = std::get<0>(q.front());
@@ -37,12 +35,12 @@
      return 0;
  }
 
- long maxflow(long s, long t) {
+ long maxflow(long s, long t, std::vector<std::vector<long>> &adj, std::vector<std::vector<long>> &capacity) {
      long flow = 0;
-     std::vector<long> parent(n);
-     while (long new_flow = bfs(s, t, parent)) {
+     std::vector<long> parent(adj.size());
+     while (long new_flow = bfs(s, t, parent, adj, capacity)) {
          flow += new_flow;
-         for (long cur = s; cur != s; cur = parent[cur]) {
+         for (long cur = t; cur != s; cur = parent[cur]) {
              capacity[parent[cur]][cur] -= new_flow;
              capacity[cur][parent[cur]] += new_flow;
          }
@@ -50,7 +48,37 @@
      return flow;
  }
 
- int main() {
-     return 0;
+ void graph() {
+     long n, m, s, t;
+     std::cin >> n >> m;
+     std::vector<std::vector<long>> adj(n, std::vector<long>());
+     std::vector<std::vector<long>> capacity(n, std::vector<long>(n, 0));
+     while (m--) {
+         long i, j, c;
+         std::cin >> i >> j >> c;
+         --i, --j;
+         adj[i].push_back(j);
+         capacity[i][j] += c;
+     }
+     long flow = std::min(flow, maxflow(s, t, adj, capacity));
+     std::cout << flow << std::endl;
+ }
+
+ void digraph() {
+     long n, m, s, t;
+     std::cin >> n >> m;
+     std::vector<std::vector<long>> adj(n, std::vector<long>());
+     std::vector<std::vector<long>> capacity(n, std::vector<long>(n, 0));
+     while (m--) {
+         long i, j, c;
+         std::cin >> i >> j >> c;
+         --i, --j;
+         adj[i].push_back(j);
+         adj[j].push_back(i);
+         capacity[i][j] += c;
+         capacity[j][i] += c;
+     }
+     long flow = std::min(flow, maxflow(s, t, adj, capacity));
+     std::cout << flow << std::endl;
  }
  ```
