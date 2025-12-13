@@ -15,6 +15,7 @@
 
  long bfs(long s, long t, std::vector<long> &parent, std::vector<std::vector<long>> &adj, std::vector<std::vector<long>> &capacity) {
      std::fill(parent.begin(), parent.end(), NONE);
+     parent[s] = s;
      std::queue<std::pair<long, long>> q;
      q.push({ s, INF });
      while (!q.empty()) {
