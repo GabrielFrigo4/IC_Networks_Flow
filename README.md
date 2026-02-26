@@ -19,6 +19,10 @@
  Abaixo estão listados os algoritmos já implementados no escopo deste projeto:
 
  * 🚀 **[Edmonds-Karp][edmonds_karp]**
+ * 🚀 **[Edmonds-Karp][push_relabel]**
+ * 🚀 **[Edmonds-Karp][push_relabel_faster]**
+ * 🚀 **[Edmonds-Karp][dinic_algorithm]**
+ * 🚀 **[Edmonds-Karp][mpm_algorithm]**
 
  *(Outros algoritmos previstos no cronograma, como Dinic, Goldberg-Tarjan e Network Simplex, serão adicionados nesta seção em breve).*
 
@@ -32,5 +36,10 @@
  * **Gabriel Frigo** - Pesquisador de Iniciação Científica
 
 [edmonds_karp]: https://github.com/GabrielFrigo4/IC_Networks_Flow/Implementações/1.%20Edmonds-Karp/README.md
+[push_relabel]: https://github.com/GabrielFrigo4/IC_Networks_Flow/Implementações/2.%20Push-Relabel/README.md
+[push_relabel_faster]: https://github.com/GabrielFrigo4/IC_Networks_Flow/Implementações/3.%20Push-Relabel%20Improved/README.md
+[dinic_algorithm]: https://github.com/GabrielFrigo4/IC_Networks_Flow/Implementações/4.%20Dinic's%20Algorithm/README.md
+[mpm_algorithm]: https://github.com/GabrielFrigo4/IC_Networks_Flow/Implementações/5.%20MPM%20algorithm/README.md
+
 [baixar_pdf_ic]: https://github.com/GabrielFrigo4/IC_Networks_Flow/releases/latest/download/ic.pdf
 [baixar_pdf_icon]: https://img.shields.io/badge/PDF-Baixar-red?style=for-the-badge&logo=adobeacrobatreader

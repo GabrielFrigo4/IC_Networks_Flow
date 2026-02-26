@@ -49,9 +49,10 @@
      return flow;
  }
 
- void graph() {
+ void digraph() {
      long n, m, s, t;
-     std::cin >> n >> m;
+     std::cin >> n >> m >> s >> t;
+     --s, --t;
      std::vector<std::vector<long>> adj(n, std::vector<long>());
      std::vector<std::vector<long>> capacity(n, std::vector<long>(n, 0));
      while (m--) {
@@ -59,15 +60,17 @@
          std::cin >> i >> j >> c;
          --i, --j;
          adj[i].push_back(j);
+         adj[j].push_back(i);
          capacity[i][j] += c;
      }
-     long flow = std::min(flow, maxflow(s, t, adj, capacity));
+     long flow = maxflow(s, t, adj, capacity);
      std::cout << flow << std::endl;
  }
 
- void digraph() {
+ void graph() {
      long n, m, s, t;
-     std::cin >> n >> m;
+     std::cin >> n >> m >> s >> t;
+     --s, --t;
      std::vector<std::vector<long>> adj(n, std::vector<long>());
      std::vector<std::vector<long>> capacity(n, std::vector<long>(n, 0));
      while (m--) {
@@ -79,7 +82,7 @@
          capacity[i][j] += c;
          capacity[j][i] += c;
      }
-     long flow = std::min(flow, maxflow(s, t, adj, capacity));
+     long flow = maxflow(s, t, adj, capacity);
      std::cout << flow << std::endl;
  }
  ```
