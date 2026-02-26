@@ -24,8 +24,6 @@
  * 🚀 **[Dinic's Algorithm][dinic_algorithm]**
  * 🔥 **[MPM algorithm][mpm_algorithm]**
 
- *(Outros algoritmos previstos no cronograma, como Dinic, Goldberg-Tarjan e Network Simplex, serão adicionados nesta seção em breve).*
-
 ## 🛠️ Como Compilar o Código-Fonte (LaTeX)
  Caso queira gerar o projeto de pesquisa (`ic.pdf`) localmente a partir do código-fonte `ic.tex`:
  1. Certifique-se de ter uma distribuição LaTeX instalada (como TeX Live ou MiKTeX) com suporte aos pacotes requeridos, como `amsmath`, `tikz`, e `geometry`.
