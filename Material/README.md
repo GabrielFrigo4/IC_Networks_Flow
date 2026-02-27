@@ -10,3 +10,5 @@
  4. [Push-Relabel Improved](https://cp-algorithms.com/graph/push-relabel-faster.html)
  5. [Dinic's Algorithm](https://cp-algorithms.com/graph/dinic.html)
  6. [MPM Algorithm](https://cp-algorithms.com/graph/mpm.html)
+ 7. [Flows with Demands](https://cp-algorithms.com/graph/flow_with_demands.html)
+ 8. [Minimum-Cost Flow](https://cp-algorithms.com/graph/min_cost_flow.html)
