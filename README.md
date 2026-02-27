@@ -22,7 +22,7 @@
  * ⚙️ **[Push-Relabel][push_relabel]**
  * ⚡ **[Push-Relabel Improved][push_relabel_faster]**
  * 🚀 **[Dinic's Algorithm][dinic_algorithm]**
- * 🔥 **[MPM algorithm][mpm_algorithm]**
+ * 🔥 **[MPM Algorithm][mpm_algorithm]**
 
 ## 🛠️ Como Compilar o Código-Fonte (LaTeX)
  Caso queira gerar o projeto de pesquisa (`ic.pdf`) localmente a partir do código-fonte `ic.tex`:
@@ -30,14 +30,17 @@
  2. Clone este repositório em sua máquina.
  3. Compile o arquivo `.tex` principal utilizando o compilador `pdflatex` (e o `bibtex` para referências bibliográficas).
 
-## ✍️ Autor
- * **Gabriel Frigo** - Pesquisador de Iniciação Científica
+---
+
+## 👥 Equipe
+ * **Gabriel Frigo** (Autor) - Pesquisador de Iniciação Científica
+ * **Cris Sato** (Orientador) - Professor(a) Doutor(a)
 
 [edmonds_karp]: ./Implementações/1.%20Edmonds-Karp/README.md
 [push_relabel]: ./Implementações/2.%20Push-Relabel/README.md
 [push_relabel_faster]: ./Implementações/3.%20Push-Relabel%20Improved/README.md
 [dinic_algorithm]: ./Implementações/4.%20Dinic's%20Algorithm/README.md
-[mpm_algorithm]: ./Implementações/5.%20MPM%20algorithm/README.md
+[mpm_algorithm]: ./Implementações/5.%20MPM%20Algorithm/README.md
 
 [baixar_pdf_ic]: https://github.com/GabrielFrigo4/IC_Networks_Flow/releases/latest/download/ic.pdf
 [baixar_pdf_icon]: https://img.shields.io/badge/PDF-Baixar-red?style=for-the-badge&logo=adobeacrobatreader
