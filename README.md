@@ -1,6 +1,8 @@
 # IC | Problemas de Fluxos em Redes: Teoria, Algoritmos e Implementações
  [![Baixar PDF][baixar_pdf_icon]][baixar_pdf_ic]
 
+---
+
 ## 📌 Sobre o Projeto
  Este repositório contém os materiais e códigos desenvolvidos para o projeto de Iniciação Científica (Edital: 01/2025 PIC/PIBIC/PIBITI/PIBIC-AF) focado na interseção entre Ciência da Computação e Matemática Discreta.
 
@@ -15,6 +17,36 @@
 
 ---
 
+## 🗺️ Roteiro da Pesquisa (Roadmap)
+ Para garantir um estudo aprofundado e uma evolução metodológica sólida, o escopo deste projeto foi dividido em duas grandes fases (abrangendo os 12 meses de pesquisa):
+
+### Fase 1: Fluxo Máximo e Técnicas de Modelagem (Semestre 1)
+ O foco inicial da pesquisa reside na compreensão algorítmica e teórica do problema de *st-fluxo máximo*. Esta etapa abrange:
+
+ * **Estudo Teórico:** Fundamentos de Otimização Combinatória e Teoria dos Grafos focados em redes residuais e caminhos aumentantes.
+ * **Ferramentas Algorítmicas:** Implementação robusta em C++ de algoritmos clássicos para grafos densos e esparsos (Edmonds-Karp, Dinic, MPM e Push-Relabel).
+ * **A Arte da Modelagem:** O grande diferencial prático desta fase é a redução de problemas aparentemente desconexos — como emparelhamento máximo em grafos bipartidos, circulação com demandas e empacotamento de caminhos disjuntos — em instâncias que podem ser resolvidas pelos algoritmos de fluxo construídos.
+
+### Fase 2: Fluxo de Custo Mínimo e Validação Experimental (Semestre 2)
+ A segunda metade do projeto eleva a complexidade ao introduzir custos associados ao transporte nas redes. Esta etapa abrange:
+
+ * **Fluxo de Custo Mínimo:** Investigação das propriedades teóricas e implementação em C++ do algoritmo clássico *Network Simplex*.
+ * **Benchmarking e Profiling:** Condução de testes práticos massivos utilizando instâncias padronizadas de bases de dados reconhecidas (coleções DIMACS).
+ * **Análise Comparativa:** Avaliação crítica do desempenho de todos os algoritmos implementados (Fases 1 e 2), comparando métricas de tempo de execução, consumo de memória e comportamento assintótico real frente a grafos de diferentes densidades.
+
+---
+
+## 🕸️ Abordagens Algorítmicas: Caminhos Aumentantes vs. Pré-fluxo
+ Historicamente, a resolução do problema clássico de $st$-fluxo máximo fundamenta-se em duas grandes famílias de algoritmos, cada uma com paradigmas distintos para manipular a rede e garantir a otimalidade da solução:
+
+### 1. Família dos Caminhos Aumentantes (Augmenting Paths)
+ Baseada no teorema fundamental de Ford-Fulkerson, esta abordagem respeita estritamente a propriedade de conservação de fluxo em todos os vértices intermediários durante toda a execução. O algoritmo opera iterativamente buscando um caminho válido da fonte $s$ ao sumidouro $t$ na **rede residual** (*residual network*). Ao encontrar um caminho, o algoritmo "aumenta" o fluxo enviando a capacidade máxima suportada pelo gargalo desse trajeto. O processo se repete até que a rede residual seja desconectada entre $s$ e $t$, momento em que o fluxo máximo é alcançado (Teorema do Fluxo Máximo-Corte Mínimo). Algoritmos notáveis desta família incluem o de Edmonds-Karp, que utiliza Busca em Largura (BFS) para encontrar os caminhos mais curtos, e o de Dinic, que otimiza o processo através da construção de grafos de níveis e fluxos bloqueantes.
+
+### 2. Família do Pré-fluxo (Preflow-Push)
+ Introduzida por Goldberg e Tarjan, esta família quebra o paradigma dos caminhos aumentantes ao relaxar intencionalmente a restrição de conservação de fluxo. Em vez de procurar caminhos completos de $s$ até $t$, o algoritmo "inunda" a rede a partir da fonte, permitindo que vértices intermediários acumulem temporariamente mais fluxo do que conseguem escoar (estado conhecido como "excesso" ou *preflow*). Utilizando um sistema de rótulos de altura para cada vértice, o algoritmo realiza operações puramente locais: ele empurra (*push*) o excesso de fluxo "ladeira abaixo" para vizinhos de menor altura e eleva (*relabel*) a altura de um vértice quando seu fluxo fica preso. Devido à sua natureza localizada e heurísticas avançadas, os algoritmos baseados em *Preflow-Push* representam o estado da arte em performance prática para grafos de grande escala.
+
+---
+
 ## 💻 Implementações e Códigos
  Abaixo estão listados os algoritmos já implementados no escopo deste projeto:
 
@@ -23,6 +55,8 @@
  * ⚡ **[Push-Relabel Improved][push_relabel_faster]**
  * 🚀 **[Dinic's Algorithm][dinic_algorithm]**
  * 🔥 **[MPM Algorithm][mpm_algorithm]**
+
+---
 
 ## 🛠️ Como Compilar o Código-Fonte (LaTeX)
  Caso queira gerar o projeto de pesquisa (`ic.pdf`) localmente a partir do código-fonte `ic.tex`:

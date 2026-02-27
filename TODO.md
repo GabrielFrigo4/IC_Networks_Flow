@@ -1,5 +1,6 @@
 # TO-DO (Tasks)
- - [ ] Implementar `Edmonds-Karp`
+ - [X] Implementar `Ford-Fulkerson`
+ - [X] Implementar `Edmonds-Karp`
  - [ ] Implementar `Push-Relabel`
  - [ ] Implementar `Push-Relabel Improved`
  - [ ] Implementar `Dinic's Algorithm`
