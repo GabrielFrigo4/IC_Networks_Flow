@@ -1,0 +1,182 @@
+\documentclass{amsart}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+
+% Pacotes
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{lipsum}
+\usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[pdftex]{graphicx}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usetikzlibrary{calc}
+\usetikzlibrary{external}
+\newtheorem{prop}{Proposição}
+\usepackage{verbatim}
+\usepackage{url}
+\usepackage{longtable}
+
+\newcommand{\numedital}{01/2025 PIC/PIBIC/PIBITI/PIBIC-AF}
+\newcommand{\longtitle}{Problemas de Fluxos em Redes: Teoria, Algoritmos e Implementações}
+
+\usepackage{setspace} \doublespacing
+
+\begin{document}
+\title[Problemas de Fluxos em Redes]{\longtitle}
+\maketitle
+\thispagestyle{empty}
+\vfill
+
+\begin{flushright}
+\begin{minipage}{8cm}
+\begin{flushright}
+Projeto de Iniciação Científica\\submetido para avaliação no Edital: \numedital
+\end{flushright}
+\end{minipage}
+\end{flushright}
+
+\vfill
+
+\renewcommand{\arraystretch}{2}
+\begin{tabular}{ll}
+\textbf{Título do projeto:} &
+\begin{minipage}[t]{8cm}
+\longtitle
+\end{minipage}
+\\
+ \textbf{Palavras-chave do projeto:} &
+ \begin{minipage}[t]{8cm}
+ Otimização Combinatória, Teoria dos Grafos, Fluxos
+ \end{minipage}\\
+\textbf{Área do conhecimento do projeto:} &
+\begin{minipage}[t]{8cm}
+Ciência da Computação, Matemática Discreta
+\end{minipage}
+\end{tabular}
+\newpage
+
+\tableofcontents
+
+\section{Resumo}
+Fluxos em digrafos constituem uma área fundamental da Otimização Combinatória, com amplas aplicações práticas em redes de transporte e alocação de recursos. Este projeto adota uma abordagem que combina fundamentos teóricos, implementação algorítmica e validação experimental para o estudo de problemas de fluxo máximo e fluxo de custo mínimo. Serão estudados algoritmos bem estabelecidos, além de técnicas de modelagem para problemas correlatos. A validação prática será realizada através de experimentos computacionais utilizando instâncias de benchmarks reconhecidas.
+
+\section{Introdução e Justificativa}
+
+% introdução da area geral
+\subsection{Introdução}
+A Otimização Combinatória é uma área de pesquisa situada na interseção entre Matemática e Ciência da Computação, cujos resultados possuem abrangência em diversas direções. Do ponto de vista matemático, a área mantém forte influência e interseção com a Teoria dos Grafos, uma vez que grafos constituem objetos combinatórios com amplo poder de modelagem e aparecem frequentemente em problemas de otimização (veja, por exemplo, os primeiros capítulos em~\cite{korte2018combinatorial}). Assim, resultados da Teoria dos Grafos são fundamentais para o desenvolvimento de diversos métodos de otimização. Sob a perspectiva computacional, a Otimização Combinatória aborda algoritmos de variados tipos, priorizando a obtenção de algoritmos eficientes que produzam soluções garantidamente ótimas ou com fatores de aproximação conhecidos. Algoritmos não-polinomiais e heurísticas também ocupam lugar de destaque devido à sua relevância prática (veja, por exemplo, \cite{reeves1993modern}). Entre as principais referências em otimização combinatória e teoria dos grafos, destacam-se o trabalho de Cook, Cunningham, Pulleyblank e Schrijver~\cite{cook1998combinatorial}, a obra enciclopédica de Schrijver~\cite{schrijver2003combinatorial} e os livros de Bondy e Murty~\cite{bondy2008graph} e Diestel~\cite{diestel2017graph}.
+
+Os problemas de caminhos em grafos exemplificam claramente como todas essas considerações se manifestam tanto na teoria e quanto na prática. O problema de encontrar caminhos mínimos entre vértices, por exemplo, surge em inúmeros cenários. Quando consideramos pesos positivos nas arestas, este problema pode ser resolvido eficientemente pelo algoritmo de Dijkstra. Entretanto, ao permitirmos pesos arbitrários, observamos um salto na complexidade computacional, abrangendo problemas como o problema de encontrar caminhos hamiltonianos (que deve passar por todos os vértices), um problema notoriamente difícil.
+
+% introdução da área específica
+Dentre os tópicos em Otimização Combinatória, problemas de fluxos em digrafos têm um destaque especial. Essa área se concentra no estudo de redes onde recursos, informações ou materiais devem ser transportados de pontos de origem para pontos de destino, respeitando restrições de capacidade e demanda. Os problemas de fluxo constituem uma classe fundamental na otimização combinatória devido à sua ampla aplicabilidade e às elegantes propriedades teóricas que apresentam~\cite{ahuja1993network}.
+
+O problema do \(st\)-fluxo máximo, onde se busca maximizar a quantidade de fluxo que pode ser enviada de um vértice fonte \(s\) para um vértice de destino \(t\), representa um dos problemas mais clássicos da área. Diversos algoritmos como os de Ford-Fulkerson~\cite{ford1956maximal}, Edmonds-Karp~\cite{edmonds1972theoretical}, Dinic~\cite{dinic1970algorithm}, Goldberg-Tarjan~\cite{goldberg1988new} e Orlin~\cite{orlin2013max} foram desenvolvidos para esse problema. Já o problema de fluxo de custo mínimo generaliza essa abordagem ao incorporar custos associados ao transporte, buscando minimizar o custo total enquanto satisfaz as demandas da rede. O algoritmo mais clássico para este problema é o network simplex~\cite{dantzig1951application,ahuja1993network}, que é essencialmente uma especialização eficiente do algoritmo simplex para este problema.
+Muitos outros problemas combinatórios podem ser modelados como problemas de fluxo, demonstrando a versatilidade e importância central desta área dentro da otimização combinatória. Dentre eles, destacam-se o problema de emparelhamento máximo em grafos bipartidos e o problema de empacotamento de caminhos disjuntos.
+
+Neste projeto, adotaremos uma abordagem dupla que integra aspectos teóricos e práticos da área de fluxos, incluindo implementações algorítmicas e modelagem computacional de problemas. Inicialmente, focaremos no problema de \(st\)-fluxo máximo, explorando os principais algoritmos propostos na literatura, os teoremas fundamentais que sustentam a área e as técnicas de modelagem. Para a validação prática dos algoritmos estudados, utilizaremos bases de dados disponíveis online, como as coleções DIMACS e outras instâncias benchmarks amplamente reconhecidas~\cite{Jensen2022}. Na segunda etapa do projeto, aplicaremos a mesma estratégia ao problema de fluxo de custo mínimo, investigando suas propriedades teóricas, algoritmos especializados e aplicações práticas.
+
+\subsection{Justificativa}
+Este projeto foca no estudo de fluxos em redes, um tópico central da Otimização Combinatória.
+O conhecimento adquirido em algoritmos e técnicas de modelagem será diretamente aplicável em trabalhos futuros do discente. Por combinar aspectos teóricos com implementação prática, o projeto oferece formação tanto para uma carreira acadêmica quanto para o mercado de trabalho. A área de fluxos em redes concentra uma variedade de técnicas algorítmicas e matemáticas, expondo o estudante a múltiplas metodologias de pesquisa. Além disso, a natureza orientada à resolução de problemas do projeto estimulará a criatividade e o pensamento analítico, competências fundamentais para qualquer atividade de pesquisa científica.
+
+\section{Objetivos}
+
+\subsection{Objetivo geral}
+Este projeto tem como objetivo geral proporcionar ao discente uma formação sólida em problemas de fluxos, integrando fundamentos teóricos, implementação algorítmica e validação experimental. Através de uma abordagem metodológica que equilibra teoria e prática, busca-se desenvolver no estudante competências essenciais de pesquisa científica, incluindo a execução de experimentos computacionais e escrita científica. O projeto visa também qualificar o estudante para pesquisas futuras em áreas relacionadas em níveis mais avançados de graduação e pós-graduação, contribuindo para a integração entre graduação e pós-graduação.
+
+\subsection{Objetivos específicos}
+Os objetivos específicos deste projeto são:
+\begin{itemize}
+    \item aprendizagem dos conceitos e técnicas básicas de Otimização Combinatória;
+    \item aprendizagem aprofundada do tópico específico de fluxos em redes;
+    \item modelagem de diversos problemas como problemas de fluxos em redes;
+    \item implementação de diversos algoritmos envolvendo fluxos;
+    \item validação experimental dos algoritmos ;
+    \item análise comparativa de desempenho entre os diferentes algoritmos implementados.
+\end{itemize}
+
+\section{Metodologia}
+A metodologia baseia-se em ciclos de estudo através da bibliografia especializada e implementação. Os algoritmos serão implementados em linguagem C++ para garantir eficiência computacional, utilizando estruturas de dados apropriadas para representação de grafos e fluxos. Os experimentos serão conduzidos em instâncias padronizadas das coleções DIMACS, permitindo comparação com resultados da literatura. A validação dos resultados seguirá protocolos comuns na área, com análise de desempenho baseada principalmente em métricas de tempo de execução.
+
+\section{Cronograma de Atividades}
+\subsection{Atividades}
+\label{sec:ativ}
+A seguir, descrevemos as atividades previstas.
+\begin{itemize}
+    \item Atividade 1: Estudo dos fundamentos de Otimização Combinatória e Teoria dos Grafos.
+
+    A bibliografia principal será o livro~\cite{cook1998combinatorial} e as notas de aulas disponíveis em \url{https://www.ime.usp.br/~pf/otimizacao-combinatoria/} que são baseadas nesse livro.
+
+    \item Atividade 2: Estudo teórico do problema de fluxo máximo e algoritmos clássicos.
+
+    Serão estudados os algoritmos clássicos de Ford-Fulkerson~\cite{ford1956maximal},
+    Edmonds-Karp~\cite{edmonds1972theoretical}, Dinic~\cite{dinic1970algorithm} e Goldberg-Tarjan~\cite{goldberg1988new}.
+
+    \item Atividade 3: Implementação em C++ dos algoritmos de fluxo máximo.
+
+    \item Atividade 4: Estudo de técnicas de modelagem utilizando fluxo máximo.
+
+    Escolheremos diversos problemas que podem ser  modelados como problemas de fluxos. Dentre eles, destacamos o problema de emparelhamento máximo em grafos bipartidos e o problema de empacotamento de caminhos disjuntos.
+
+    \item Atividade 5: Implementação de algoritmos para problemas modelados.
+
+    Destacamos o problema de circulação mínima e problemas de alocação de tarefas a agentes. Na página \url{https://www.topcoder.com/thrive/articles/Minimum%20Cost%20Flow%20Part%20One:%20Key%20Concepts} diversos problemas são propostos.
+
+    \item Atividade 6: Elaboração do relatório parcial %31/03/2026
+
+    \item Atividade 7: Estudo teórico do problema de fluxo de custo mínimo e algoritmo network simplex.
+
+   A bibliografia principal é a mesma da Atividade 1.
+
+    \item Atividade 8: Implementação em C++ do algoritmo network simplex.
+
+    \item Atividade 9: Testes experimentais.
+
+    \item Atividade 10: Análise comparativa de desempenho dos algoritmos implementados.
+
+    \item Atividade 11:  Elaboração do relatório final.
+
+    \end{itemize}
+
+    \subsection{Cronograma}
+
+    Este projeto tem vigência de 01/09/2025 a 31/08/2026 com duração de 12 meses.
+
+\begin{longtable}{ |c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+Atividade   &01&02&03&04&05&06&07&08&09&10&11&12\\ \hline
+\endfirsthead
+
+\hline
+Atividade   &01&02&03&04&05&06&07&08&09&10&11&12\\ \hline
+\endhead
+
+Atividade 1 &x&x&x&x&x&&&&&&&\\ \hline
+Atividade 2 &&x&x&x&x&&&&&&&\\ \hline
+Atividade 3 &&x&x&x&x&&&&&&&\\ \hline
+Atividade 4 &&&&x&x&x&&&&&&\\ \hline
+Atividade 5 &&&&x&x&x&&&&&&\\ \hline
+Atividade 6 &&&&&&x&&&&&&\\ \hline
+Atividade 7 &&&&&&x&x&x&x&&&\\ \hline
+Atividade 8 &&&&&&&x&x&x&x&&\\ \hline
+Atividade 9 &&&&&&&&&x&x&x&x\\ \hline
+Atividade 10 &&&&&&&&&&x&x&x\\ \hline
+Atividade 11 &&&&&&&&&&&&x\\ \hline
+\end{longtable}
+
+\section{Viabilidade}
+
+Este projeto não necessita de equipamento especializado além de computadores convencionais. As bases de dados que serão utilizadas, incluindo as coleções DIMACS, estão disponíveis publicamente através de repositórios online. O discente já possui familiaridade com a linguagem C++, eliminando a necessidade de treinamento adicional em ferramentas de programação. A literatura especializada sobre algoritmos de fluxo é extensa e bem documentada, facilitando o estudo teórico.
+
+\bibliographystyle{abntex2-alf}
+\bibliography{cit.bib}
+
+\end{document}

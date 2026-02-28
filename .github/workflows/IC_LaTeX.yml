@@ -8,6 +8,7 @@ on:
 
 jobs:
   build_latex:
+    name: Build LaTeX (Múltiplos Arquivos)
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,18 +17,60 @@ jobs:
       - name: Fazer Checkout do código
         uses: actions/checkout@v4
 
-      - name: Compilar arquivo LaTeX
-        uses: xu-cheng/latex-action@v3
+      - name: Compilar todos os arquivos LaTeX
+        uses: xu-cheng/latex-action@v4
         with:
-          root_file: ic.tex
+          root_file: "*.tex"
 
-      - name: Criar Release e Upload do PDF
+      - name: Deletar Release e Tag 'latest' antigas
+        uses: dev-drprasad/delete-tag-and-release@v1.0
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        with:
+          delete_release: true
+          tag_name: latest
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sleep for 4 seconds
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: sleep 4
+
+      - name: Preparar Metadados e Links da Release
+        id: meta_step
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: |
+          # Formatar data (Fuso Horário de São Paulo)
+          export TZ="America/Sao_Paulo"
+          RAW_DATE="${{ github.event.head_commit.timestamp }}"
+          FORMATTED_DATE=$(date -d "$RAW_DATE" +'%d/%m/%Y %H:%M')
+          echo "DATA_FORMATADA=$FORMATTED_DATE" >> "$GITHUB_OUTPUT"
+
+          # Gerar links de download dinâmicos para cada PDF encontrado
+          {
+            echo 'PDF_LINKS<<EOF'
+            for pdf in *.pdf; do
+              if [ -f "$pdf" ]; then
+                echo "- [\`$pdf\`](https://github.com/${{ github.repository }}/releases/download/latest/$pdf)"
+              fi
+            done
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Criar Nova Release 'latest'
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         with:
           tag_name: latest
-          name: IC (PDF)
-          files: ic.pdf
+          name: Documentos LaTeX Compilados
+          body: |
+            Build automatizado de todos os documentos LaTeX do repositório.
+
+            **Commit:** ${{ github.sha }}
+            **Data:** ${{ steps.meta_step.outputs.DATA_FORMATADA }}
+            
+            **Conteúdo Gerado:**
+            ${{ steps.meta_step.outputs.PDF_LINKS }}
+          target_commitish: ${{ github.sha }}
+          files: "*.pdf"
           draft: false
           prerelease: false
         env:

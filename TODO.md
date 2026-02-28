@@ -8,6 +8,15 @@
  - [ ] Reduzir Problemas para `MaxFlow`
  - [ ] Modelar Problemas para `MaxFlow`
 
+# TO-DO (Sato)
+ - [ ] Procurar Modelo de Relatório (no site da UFABC)
+ - [ ] Transformar em LaTeX
+ - [ ] Preencher as seções que são iguais/semelhantes às do projeto
+ - [ ] Escrever os códigos fluxo máximo EK, Dinic, e mais um.
+ - [ ] Testar eles em alguma plataforma (Codeforces)
+ - [ ] Emparelhamento bipartido (Codeforces)
+ - [ ] Caminhos disjuntos nas arestas ou corte mínimo (Codeforces)
+
 # TO-DO (Etapas)
  1. Entender os algoritmos de fluxo máximo: Corresponde à `Atividade 2`.
  2. Implementar os problemas de fluxo máximo: Corresponde à `Atividade 3`.
