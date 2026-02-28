@@ -1,5 +1,8 @@
 # IC | Problemas de Fluxos em Redes: Teoria, Algoritmos e Implementações
- [![Baixar PDF][baixar_pdf_icon]][baixar_pdf_ic]
+ [![Baixar PDF da IC][baixar_pdf_ic_icon]][baixar_pdf_ic]
+ [![Baixar PDF do Projeto][baixar_pdf_projeto_icon]][baixar_pdf_projeto]
+ [![Baixar PDF do Relatório Parcial][baixar_pdf_parcial_icon]][baixar_pdf_parcial]
+ [![Baixar PDF do Relatório Final][baixar_pdf_final_icon]][baixar_pdf_final]
 
 ---
 
@@ -77,4 +80,13 @@
 [mpm_algorithm]: ./Implementações/5.%20MPM%20Algorithm/README.md
 
 [baixar_pdf_ic]: https://github.com/GabrielFrigo4/IC_Networks_Flow/releases/latest/download/ic.pdf
-[baixar_pdf_icon]: https://img.shields.io/badge/PDF-Baixar-red?style=for-the-badge&logo=adobeacrobatreader
+[baixar_pdf_ic_icon]: https://img.shields.io/badge/IC-Baixar-red?style=for-the-badge&logo=adobeacrobatreader
+
+[baixar_pdf_projeto]: https://github.com/GabrielFrigo4/IC_Networks_Flow/releases/latest/download/projeto.pdf
+[baixar_pdf_projeto_icon]: https://img.shields.io/badge/Projeto-Baixar-red?style=for-the-badge&logo=adobeacrobatreader
+
+[baixar_pdf_parcial]: https://github.com/GabrielFrigo4/IC_Networks_Flow/releases/latest/download/parcial.pdf
+[baixar_pdf_parcial_icon]: https://img.shields.io/badge/Parcial-Baixar-red?style=for-the-badge&logo=adobeacrobatreader
+
+[baixar_pdf_final]: https://github.com/GabrielFrigo4/IC_Networks_Flow/releases/latest/download/final.pdf
+[baixar_pdf_final_icon]: https://img.shields.io/badge/Final-Baixar-red?style=for-the-badge&logo=adobeacrobatreader
