@@ -1,7 +1,6 @@
 \documentclass{amsart}
 \usepackage[a4paper, total={6in, 8in}]{geometry}
 
-% Pacotes
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{amsthm}
@@ -69,13 +68,11 @@ Fluxos em digrafos constituem uma área fundamental da Otimização Combinatóri
 
 \section{Introdução e Justificativa}
 
-% introdução da area geral
 \subsection{Introdução}
 A Otimização Combinatória é uma área de pesquisa situada na interseção entre Matemática e Ciência da Computação, cujos resultados possuem abrangência em diversas direções. Do ponto de vista matemático, a área mantém forte influência e interseção com a Teoria dos Grafos, uma vez que grafos constituem objetos combinatórios com amplo poder de modelagem e aparecem frequentemente em problemas de otimização (veja, por exemplo, os primeiros capítulos em~\cite{korte2018combinatorial}). Assim, resultados da Teoria dos Grafos são fundamentais para o desenvolvimento de diversos métodos de otimização. Sob a perspectiva computacional, a Otimização Combinatória aborda algoritmos de variados tipos, priorizando a obtenção de algoritmos eficientes que produzam soluções garantidamente ótimas ou com fatores de aproximação conhecidos. Algoritmos não-polinomiais e heurísticas também ocupam lugar de destaque devido à sua relevância prática (veja, por exemplo, \cite{reeves1993modern}). Entre as principais referências em otimização combinatória e teoria dos grafos, destacam-se o trabalho de Cook, Cunningham, Pulleyblank e Schrijver~\cite{cook1998combinatorial}, a obra enciclopédica de Schrijver~\cite{schrijver2003combinatorial} e os livros de Bondy e Murty~\cite{bondy2008graph} e Diestel~\cite{diestel2017graph}.
 
 Os problemas de caminhos em grafos exemplificam claramente como todas essas considerações se manifestam tanto na teoria e quanto na prática. O problema de encontrar caminhos mínimos entre vértices, por exemplo, surge em inúmeros cenários. Quando consideramos pesos positivos nas arestas, este problema pode ser resolvido eficientemente pelo algoritmo de Dijkstra. Entretanto, ao permitirmos pesos arbitrários, observamos um salto na complexidade computacional, abrangendo problemas como o problema de encontrar caminhos hamiltonianos (que deve passar por todos os vértices), um problema notoriamente difícil.
 
-% introdução da área específica
 Dentre os tópicos em Otimização Combinatória, problemas de fluxos em digrafos têm um destaque especial. Essa área se concentra no estudo de redes onde recursos, informações ou materiais devem ser transportados de pontos de origem para pontos de destino, respeitando restrições de capacidade e demanda. Os problemas de fluxo constituem uma classe fundamental na otimização combinatória devido à sua ampla aplicabilidade e às elegantes propriedades teóricas que apresentam~\cite{ahuja1993network}.
 
 O problema do \(st\)-fluxo máximo, onde se busca maximizar a quantidade de fluxo que pode ser enviada de um vértice fonte \(s\) para um vértice de destino \(t\), representa um dos problemas mais clássicos da área. Diversos algoritmos como os de Ford-Fulkerson~\cite{ford1956maximal}, Edmonds-Karp~\cite{edmonds1972theoretical}, Dinic~\cite{dinic1970algorithm}, Goldberg-Tarjan~\cite{goldberg1988new} e Orlin~\cite{orlin2013max} foram desenvolvidos para esse problema. Já o problema de fluxo de custo mínimo generaliza essa abordagem ao incorporar custos associados ao transporte, buscando minimizar o custo total enquanto satisfaz as demandas da rede. O algoritmo mais clássico para este problema é o network simplex~\cite{dantzig1951application,ahuja1993network}, que é essencialmente uma especialização eficiente do algoritmo simplex para este problema.
@@ -130,7 +127,7 @@ A seguir, descrevemos as atividades previstas.
 
     Destacamos o problema de circulação mínima e problemas de alocação de tarefas a agentes. Na página \url{https://www.topcoder.com/thrive/articles/Minimum%20Cost%20Flow%20Part%20One:%20Key%20Concepts} diversos problemas são propostos.
 
-    \item Atividade 6: Elaboração do relatório parcial %31/03/2026
+    \item Atividade 6: Elaboração do relatório parcial
 
     \item Atividade 7: Estudo teórico do problema de fluxo de custo mínimo e algoritmo network simplex.
 

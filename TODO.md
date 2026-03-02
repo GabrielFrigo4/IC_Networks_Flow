@@ -9,9 +9,9 @@
  - [ ] Modelar Problemas para `MaxFlow`
 
 # TO-DO (Sato)
- - [ ] Procurar Modelo de Relatório (no site da UFABC)
- - [ ] Transformar em LaTeX
- - [ ] Preencher as seções que são iguais/semelhantes às do projeto
+ - [X] Procurar Modelo de Relatório (no site da UFABC)
+ - [X] Transformar em LaTeX
+ - [X] Preencher as seções que são iguais/semelhantes às do projeto
  - [ ] Escrever os códigos fluxo máximo EK, Dinic, e mais um.
  - [ ] Testar eles em alguma plataforma (Codeforces)
  - [ ] Emparelhamento bipartido (Codeforces)
