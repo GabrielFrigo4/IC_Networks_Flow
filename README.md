@@ -1,8 +1,8 @@
 # IC | Problemas de Fluxos em Redes: Teoria, Algoritmos e Implementações
- [![Baixar PDF da IC][baixar_pdf_ic_icon]][baixar_pdf_ic]
  [![Baixar PDF do Projeto][baixar_pdf_projeto_icon]][baixar_pdf_projeto]
  [![Baixar PDF do Relatório Parcial][baixar_pdf_parcial_icon]][baixar_pdf_parcial]
  [![Baixar PDF do Relatório Final][baixar_pdf_final_icon]][baixar_pdf_final]
+ [![Baixar PDF da IC][baixar_pdf_ic_icon]][baixar_pdf_ic]
 
 ---
 
