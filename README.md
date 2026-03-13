@@ -54,9 +54,9 @@
  Abaixo estão listados os algoritmos já implementados no escopo deste projeto:
 
  * 🐢 **[Edmonds-Karp][edmonds_karp]**
+ * 🚀 **[Dinic's Algorithm][dinic_algorithm]**
  * ⚙️ **[Push-Relabel][push_relabel]**
  * ⚡ **[Push-Relabel Improved][push_relabel_faster]**
- * 🚀 **[Dinic's Algorithm][dinic_algorithm]**
  * 🔥 **[MPM Algorithm][mpm_algorithm]**
 
 ---
@@ -74,9 +74,9 @@
  * **Cris Sato** (Orientador) - Professor(a) Doutor(a)
 
 [edmonds_karp]: ./Implementações/1.%20Edmonds-Karp/README.md
-[push_relabel]: ./Implementações/2.%20Push-Relabel/README.md
-[push_relabel_faster]: ./Implementações/3.%20Push-Relabel%20Improved/README.md
-[dinic_algorithm]: ./Implementações/4.%20Dinic's%20Algorithm/README.md
+[dinic_algorithm]: ./Implementações/2.%20Dinic's%20Algorithm/README.md
+[push_relabel]: ./Implementações/3.%20Push-Relabel/README.md
+[push_relabel_faster]: ./Implementações/4.%20Push-Relabel%20Improved/README.md
 [mpm_algorithm]: ./Implementações/5.%20MPM%20Algorithm/README.md
 
 [baixar_pdf_ic]: https://github.com/GabrielFrigo4/IC_Networks_Flow/releases/latest/download/ic.pdf

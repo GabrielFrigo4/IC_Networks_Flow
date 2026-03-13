@@ -9,76 +9,87 @@
  #include <queue>
  #include <algorithm>
 
- #define long long long
- const long INF = 1e18;
+ using Long = long long;
+ constexpr Long INF = static_cast<Long>(1e14);
 
- struct Edge {
-     int from, to;
-     long cap, flow;
+ struct Edge
+ {
+     Long from, to;
+     Long cap, flow;
  };
 
- struct EdmondsKarp {
-     int n;
+ class EdmondsKarp
+ {
+ private:
+     Long n;
      std::vector<Edge> edges;
-     std::vector<std::vector<int>> adj;
+     std::vector<std::vector<Long>> adj;
 
-     EdmondsKarp(int n) : n(n), adj(n) {}
+     Long bfs(Long s, Long t, std::vector<Long> &parent)
+     {
+         std::fill(parent.begin(), parent.end(), -1);
+         std::queue<std::pair<Long, Long>> q;
 
-     void add_edge(int from, int to, long cap, bool is_directed = true) {
-         adj[from].push_back(edges.size());
-         edges.push_back({from, to, cap, 0});
-        
-         adj[to].push_back(edges.size());
-         edges.push_back({to, from, is_directed ? 0 : cap, 0}); 
-     }
+         parent[s] = -2;
+         q.push({s, INF});
 
-     long get_max_flow(int s, int t) {
-         long total_flow = 0;
-         std::vector<int> parent(n);
+         while (!q.empty())
+         {
+             Long cur = q.front().first;
+             Long cur_f = q.front().second;
+             q.pop();
 
-         while (true) {
-             std::fill(parent.begin(), parent.end(), -1);
-             std::queue<std::pair<int, long>> q;
-            
-             parent[s] = -2;
-             q.push({s, INF});
-             long new_flow = 0;
+             for (Long id : adj[cur])
+             {
+                 Long nxt = edges[id].to;
+                 Long res = edges[id].cap - edges[id].flow;
 
-             while (!q.empty()) {
-                 int cur = q.front().first;
-                 long current_flow = q.front().second;
-                 q.pop();
+                 if (parent[nxt] != -1 || res <= 0)
+                     continue;
 
-                 for (int edge_idx : adj[cur]) {
-                     int next = edges[edge_idx].to;
-                     long residual_cap = edges[edge_idx].cap - edges[edge_idx].flow;
+                 parent[nxt] = id;
+                 Long min_f = std::min(cur_f, res);
 
-                     if (parent[next] == -1 && residual_cap > 0) {
-                         parent[next] = edge_idx; 
-                         long min_flow = std::min(current_flow, residual_cap);
-                        
-                         if (next == t) {
-                             new_flow = min_flow;
-                             break;
-                         }
-                         q.push({next, min_flow});
-                     }
-                 }
-                 if (new_flow > 0) break;
-             }
+                 if (nxt == t)
+                     return min_f;
 
-             if (new_flow == 0) break;
-             total_flow += new_flow;
-            
-             int curr_node = t;
-             while (curr_node != s) {
-                 int edge_idx = parent[curr_node];
-                 edges[edge_idx].flow += new_flow;
-                 edges[edge_idx ^ 1].flow -= new_flow;
-                 curr_node = edges[edge_idx].from;
+                 q.push({nxt, min_f});
              }
          }
-         return total_flow;
+         return 0;
+     }
+
+ public:
+     EdmondsKarp(Long n) : n(n), adj(n) {}
+
+     void add_edge(Long from, Long to, Long cap, bool is_directed = true)
+     {
+         adj[from].push_back(edges.size());
+         edges.push_back({from, to, cap, 0});
+
+         adj[to].push_back(edges.size());
+         edges.push_back({to, from, is_directed ? 0 : cap, 0});
+     }
+
+     Long get_max_flow(Long s, Long t)
+     {
+         Long tot_f = 0, new_f;
+         std::vector<Long> parent(n);
+
+         while ((new_f = bfs(s, t, parent)) > 0)
+         {
+             tot_f += new_f;
+
+             Long cur = t;
+             while (cur != s)
+             {
+                 Long id = parent[cur];
+                 edges[id].flow += new_f;
+                 edges[id ^ 1].flow -= new_f;
+                 cur = edges[id].from;
+             }
+         }
+         return tot_f;
      }
  };
  ```

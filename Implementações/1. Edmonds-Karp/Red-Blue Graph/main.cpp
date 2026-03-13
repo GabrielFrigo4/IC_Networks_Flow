@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstddef>
 
-int main() {
+int main()
+{
     return 0;
 }

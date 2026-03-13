@@ -1,46 +1,35 @@
-CC := g++
-EXT := cpp
+CXX    := g++
+EXT    := cpp
 TARGET := main
-INPUT := "./input.txt"
+INPUT  := input.txt
+SRC    := $(TARGET).$(EXT)
 
-UNIX_FLAGS := -Wl,-z,stack-size=268435456 -std=c++23 -O2
-UNIX_EXE := "./$(TARGET)"
-UNIX_CLIP := wl-copy
+ifneq (,$(findstring MINGW,$(UNAME_S))$(findstring MSYS,$(UNAME_S))$(filter Windows_NT,$(OS)))
+	CXXFLAGS := -Wl,--stack=268435456 -std=c++23 -O2
+	EXE      := $(TARGET).exe
+	CLIP     := win32yank -i
+	RM_CMD   := del /f /q $(EXE) 2>nul || rm -f $(EXE)
+	EXEC_CMD := $(EXE)
+else
+	CXXFLAGS := -Wl,-z,stack-size=268435456 -std=c++23 -O2
+	EXE      := ./$(TARGET)
+	CLIP     := wl-copy
+	RM_CMD   := rm -f $(EXE)
+	EXEC_CMD := $(EXE)
+endif
 
-WIN_FLAGS := -Wl,--stack=268435456 -std=c++23 -O2
-WIN_EXE := "./$(TARGET).exe"
-WIN_CLIP := win32yank -i
+.PHONY: all run clean clip
 
-.PHONY: unix
-unix:
-	g++ $(UNIX_FLAGS) $(TARGET).$(EXT) -o $(TARGET)
-	cat $(INPUT) | $(UNIX_EXE)
+all: $(EXE) run
 
-.PHONY: urun
-urun:
-	cat $(INPUT) | $(UNIX_EXE)
+$(EXE): $(SRC)
+	$(CXX) $(CXXFLAGS) $(SRC) -o $(EXE)
 
-.PHONY: urm
-urm:
-	rm $(UNIX_EXE)
+run:
+	$(EXEC_CMD) < $(INPUT)
 
-.PHONY: uclip
-uclip:
-	cat $(TARGET).$(EXT) | $(UNIX_CLIP)
+clean:
+	-$(RM_CMD)
 
-.PHONY: win
-win:
-	$(CC) $(WIN_FLAGS) $(TARGET).$(EXT) -o $(TARGET)
-	cat $(INPUT) | $(WIN_EXE)
-
-.PHONY: wrun
-wrun:
-	cat $(INPUT) | $(WIN_EXE)
-
-.PHONY: wrm
-wrm:
-	rm $(WIN_EXE)
-
-.PHONY: wclip
-wclip:
-	cat $(TARGET).$(EXT) | $(WIN_CLIP)
+clip:
+	$(CLIP) < $(SRC)

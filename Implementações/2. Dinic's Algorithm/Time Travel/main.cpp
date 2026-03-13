@@ -8,29 +8,28 @@ constexpr Long INF = static_cast<Long>(1e14);
 
 struct Edge
 {
-    Long from, to;
-    Long cap, flow;
+    Long from, to, cap, flow;
 };
 
-class EdmondsKarp
+class Dinic
 {
 private:
     Long n;
     std::vector<Edge> edges;
     std::vector<std::vector<Long>> adj;
+    std::vector<Long> level;
+    std::vector<Long> ptr;
 
-    Long bfs(Long s, Long t, std::vector<Long> &parent)
+    bool bfs(Long s, Long t)
     {
-        std::fill(parent.begin(), parent.end(), -1);
-        std::queue<std::pair<Long, Long>> q;
-
-        parent[s] = -2;
-        q.push({s, INF});
+        std::fill(level.begin(), level.end(), -1);
+        level[s] = 0;
+        std::queue<Long> q;
+        q.push(s);
 
         while (!q.empty())
         {
-            Long cur = q.front().first;
-            Long cur_f = q.front().second;
+            Long cur = q.front();
             q.pop();
 
             for (Long id : adj[cur])
@@ -38,23 +37,44 @@ private:
                 Long nxt = edges[id].to;
                 Long res = edges[id].cap - edges[id].flow;
 
-                if (parent[nxt] != -1 || res <= 0)
+                if (level[nxt] != -1 || res <= 0)
                     continue;
 
-                parent[nxt] = id;
-                Long min_f = std::min(cur_f, res);
-
-                if (nxt == t)
-                    return min_f;
-
-                q.push({nxt, min_f});
+                level[nxt] = level[cur] + 1;
+                q.push(nxt);
             }
+        }
+        return level[t] != -1;
+    }
+
+    Long dfs(Long cur, Long t, Long pushed)
+    {
+        if (pushed == 0 || cur == t)
+            return pushed;
+
+        for (Long &cid = ptr[cur]; cid < adj[cur].size(); ++cid)
+        {
+            Long id = adj[cur][cid];
+            Long nxt = edges[id].to;
+            Long res = edges[id].cap - edges[id].flow;
+
+            if (level[cur] + 1 != level[nxt] || res <= 0)
+                continue;
+
+            Long pushed_nxt = dfs(nxt, t, std::min(pushed, res));
+
+            if (pushed_nxt == 0)
+                continue;
+
+            edges[id].flow += pushed_nxt;
+            edges[id ^ 1].flow -= pushed_nxt;
+            return pushed_nxt;
         }
         return 0;
     }
 
 public:
-    EdmondsKarp(Long n) : n(n), adj(n) {}
+    Dinic(Long n) : n(n), adj(n), level(n), ptr(n) {}
 
     void add_edge(Long from, Long to, Long cap, bool is_directed = true)
     {
@@ -67,20 +87,15 @@ public:
 
     Long get_max_flow(Long s, Long t)
     {
-        Long tot_f = 0, new_f;
-        std::vector<Long> parent(n);
+        Long tot_f = 0;
 
-        while ((new_f = bfs(s, t, parent)) > 0)
+        while (bfs(s, t))
         {
-            tot_f += new_f;
-
-            Long cur = t;
-            while (cur != s)
+            std::fill(ptr.begin(), ptr.end(), 0);
+            Long pushed;
+            while ((pushed = dfs(s, t, INF)) > 0)
             {
-                Long id = parent[cur];
-                edges[id].flow += new_f;
-                edges[id ^ 1].flow -= new_f;
-                cur = edges[id].from;
+                tot_f += pushed;
             }
         }
         return tot_f;
@@ -103,14 +118,14 @@ void task()
         cap[v][u] = c;
     }
 
-    EdmondsKarp ek(n);
+    Dinic dn(n);
     for (Long i = 0; i < n; i++)
     {
         for (Long j = i + 1; j < n; j++)
         {
             if (cap[i][j] > 0)
             {
-                ek.add_edge(i, j, cap[i][j], false);
+                dn.add_edge(i, j, cap[i][j], false);
             }
         }
     }
@@ -118,8 +133,8 @@ void task()
     Long global_min_cut = INF;
     for (Long t = 1; t < n; t++)
     {
-        EdmondsKarp ek_copy = ek;
-        Long current_flow = ek_copy.get_max_flow(0, t);
+        Dinic dn_copy = dn;
+        Long current_flow = dn_copy.get_max_flow(0, t);
         global_min_cut = std::min(global_min_cut, current_flow);
     }
 

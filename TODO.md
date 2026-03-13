@@ -1,9 +1,9 @@
 # TO-DO (Tasks)
  - [X] Implementar `Ford-Fulkerson`
  - [X] Implementar `Edmonds-Karp`
+ - [X] Implementar `Dinic's Algorithm`
  - [ ] Implementar `Push-Relabel`
  - [ ] Implementar `Push-Relabel Improved`
- - [ ] Implementar `Dinic's Algorithm`
  - [ ] Implementar `MPM Algorithm`
  - [ ] Reduzir Problemas para `MaxFlow`
  - [ ] Modelar Problemas para `MaxFlow`
@@ -12,8 +12,8 @@
  - [X] Procurar Modelo de Relatório (no site da UFABC)
  - [X] Transformar em LaTeX
  - [X] Preencher as seções que são iguais/semelhantes às do projeto
- - [ ] Escrever os códigos fluxo máximo EK, Dinic, e mais um.
- - [ ] Testar eles em alguma plataforma (Codeforces)
+ - [-] Escrever os códigos fluxo máximo EK, Dinic, e mais um.
+ - [-] Testar eles em alguma plataforma (Codeforces)
  - [ ] Emparelhamento bipartido (Codeforces)
  - [ ] Caminhos disjuntos nas arestas ou corte mínimo (Codeforces)
 

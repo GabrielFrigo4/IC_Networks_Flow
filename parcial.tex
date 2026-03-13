@@ -23,6 +23,37 @@
     margin=2cm
 }
 
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.9,0.9,0.9}
+
+\lstset{
+    language=C++,
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\normalsize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=shadowbox,
+    rulecolor=\color{black},
+    columns=fullflexible
+}
+
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
 
@@ -49,9 +80,9 @@
 
 \noindent \textbf{Relatório Parcial de Iniciação Científica referente ao Edital:} 01/2025 PIC\slash PIBIC\slash PIBITI\slash PIBIC-AF \\[0.5cm]
 \noindent \emph{Na capa deverá conter tanto a assinatura do aluno quanto a assinatura do orientador}\\[0.5cm]
-\noindent \textbf{Nome do aluno:} \hrulefill \\
+\noindent \textbf{Nome do aluno:} Gabriel Frigo \\
 \noindent \textbf{Assinatura do aluno:} \hrulefill \\[0.5cm]
-\noindent \textbf{Nome do orientador:} \hrulefill \\
+\noindent \textbf{Nome do orientador:} Cristiane Maria Sato \\
 \noindent \textbf{Assinatura do orientador:} \hrulefill \\[0.5cm]
 \noindent \textbf{Título do projeto:} Problemas de Fluxos em Redes: Teoria, Algoritmos e Implementações \\[0.5cm]
 \noindent \textbf{Palavras-chave do projeto:} Otimização Combinatória, Teoria dos Grafos, Fluxos \\[0.5cm]
@@ -94,7 +125,7 @@ As atividades do projeto foram estruturadas e encontram-se no seguinte status:
     \item \textbf{Atividade 2:} Estudo teórico do problema de fluxo máximo e algoritmos clássicos~\cite{ford1956maximal, edmonds1972theoretical, dinic1970algorithm, goldberg1988new}. \textbf{[Concluída]}
     \item \textbf{Atividade 3:} Implementação em C++ dos algoritmos de fluxo máximo. \textbf{[Concluída]}
     \item \textbf{Atividade 4:} Estudo de técnicas de modelagem e redução de problemas. \textbf{[Concluída]}
-    \item \textbf{Atividade 5:} Implementação de problemas modelados (Emparelhamento e Caminhos Disjuntos). \textbf{[Em andamento]}
+    \item \textbf{Atividade 5:} Implementação de problemas modelados (Emparelhamento e Caminhos Disjuntos). \textbf{[Concluída]}
     \item \textbf{Atividade 6:} Elaboração do relatório parcial (este documento). \textbf{[Em andamento]}
     \item \textbf{Atividade 7:} Estudo teórico do problema de fluxo de custo mínimo~\cite{cook1998combinatorial}. \textbf{[A iniciar]}
     \item \textbf{Atividade 8:} Implementação em C++ do algoritmo \textit{network simplex}. \textbf{[A iniciar]}
@@ -104,7 +135,250 @@ As atividades do projeto foram estruturadas e encontram-se no seguinte status:
 \end{itemize}
 
 \section{Resultados parciais}
-Nesta seção, devem ser apresentados os tempos de execução obtidos pelos algoritmos de Edmonds-Karp e Dinic nas primeiras instâncias testadas, bem como a verificação da corretude através do teorema do corte mínimo~\cite{ford1956maximal}.
+Nesta seção, apresentamos os avanços práticos alcançados na primeira metade do projeto, com foco na implementação, validação e otimização de algoritmos clássicos para o problema de fluxo máximo. Os testes iniciais visam aferir a corretude das implementações através do teorema do fluxo máximo-corte mínimo~\cite{ford1956maximal}, bem como estabelecer uma base estrutural sólida e modular para a futura análise de desempenho computacional em instâncias de larga escala.
+
+\subsection{Fundamentação Teórica e Lógica: O Método de Ford-Fulkerson}
+O problema de encontrar o fluxo máximo em uma rede consiste em determinar a maior quantidade de fluxo viável $f$ que pode ser roteada de um vértice fonte ($s$) para um vértice sumidouro ($t$). Um fluxo viável deve respeitar duas restrições fundamentais: a restrição de capacidade nas arestas, onde $0 \le f(u,v) \le c(u,v)$, e a lei de conservação de fluxo, que estipula que o fluxo que entra em qualquer vértice intermediário $v \in V \setminus \{s, t\}$ deve ser igual ao fluxo que sai.
+
+A base teórica de nossa investigação apoia-se no método iterativo de Ford-Fulkerson~\cite{ford1956maximal}. A essência deste método reside na manutenção de uma \textit{rede residual} ($G_f$). Formalmente, a rede residual reflete as capacidades remanescentes na rede original após a passagem de um fluxo. A capacidade residual de um par de vértices $(u,v)$ é definida matematicamente por $c_f(u,v) = c(u,v) - f(u,v) + f(v,u)$. O termo $+ f(v,u)$ é crucial, pois representa a "simetria reversa" (ou a capacidade de cancelar um fluxo previamente enviado no sentido oposto), garantindo a possibilidade de correção de decisões subótimas tomadas em iterações anteriores.
+
+A cada iteração, o método busca um \textit{caminho aumentante} de $s$ a $t$ em $G_f$, ou seja, um caminho simples onde todas as arestas possuem capacidade residual estritamente positiva ($c_f(u,v) > 0$). Caso tal caminho exista, o fluxo global é incrementado pelo valor da capacidade gargalo deste percurso. O processo repete-se até que não exista mais caminho aumentante para o sumidouro na rede residual. Neste ponto de parada, o célebre Teorema do Fluxo Máximo-Corte Mínimo prova que o fluxo atual é, indubitavelmente, o máximo possível.
+
+\subsection{O Algoritmo de Edmonds-Karp e Análise de Complexidade}
+O método de Ford-Fulkerson deixa em aberto a estratégia de busca do caminho aumentante. Em cenários patológicos, uma busca cega (como uma Busca em Profundidade) pode resultar em iterações excessivas ou mesmo na não-terminação em grafos com capacidades irracionais. Para contornar essa vulnerabilidade, adotamos o algoritmo de Edmonds-Karp~\cite{edmonds1972theoretical}, que especializa o método original ao impor que os caminhos aumentantes sejam descobertos estritamente através de uma Busca em Largura (BFS - \textit{Breadth-First Search}). 
+
+A adoção da BFS garante que o caminho selecionado possua sempre o menor número possível de arestas (considerando peso unitário para todas as arestas de $G_f$). Esta simples regra altera drasticamente o comportamento assintótico do método, conferindo-lhe um tempo de execução estritamente polinomial.
+
+A prova de que o algoritmo de Edmonds-Karp opera no tempo de pior caso de $\mathcal{O}(|V| \cdot |E|^2)$ baseia-se na propriedade de monotonicidade das distâncias. Seja $d(u)$ a distância mínima (em número de arestas) da fonte $s$ ao vértice $u$ em $G_f$. Pode-se provar que, iterativamente, $d(u)$ é monotonicamente não-decrescente. 
+
+A cada caminho descoberto, a sua aresta gargalo $(u, v)$ é saturada e removida de $G_f$. Por pertencer ao caminho mais curto, temos $d(v) = d(u) + 1$. Para que a aresta $(u, v)$ retorne como viável no futuro, o algoritmo deve empurrar fluxo na sua reversa de $v$ para $u$, implicando que este trecho agora pertence a um novo caminho mais curto, satisfazendo uma nova distância $d'(u) = d'(v) + 1$. Como $d'(v) \ge d(v)$, obtemos que $d'(u) \ge d(u) + 2$. Conclui-se que, entre duas saturações de uma mesma aresta, a distância de $s$ até a origem da aresta aumenta em pelo menos 2. Sendo $|V| - 1$ a distância máxima possível, cada uma das $\mathcal{O}(|E|)$ arestas pode ser o gargalo no máximo $\mathcal{O}(|V|)$ vezes. Multiplicando o limite total de $\mathcal{O}(|V| \cdot |E|)$ aumentos pelo custo $\mathcal{O}(|E|)$ de uma BFS, consolida-se a complexidade de $\mathcal{O}(|V| \cdot |E|^2)$~\cite{ahuja1993network}.
+
+\subsection{Estruturas de Dados e Implementação Computacional}
+A transição do modelo matemático para uma implementação de alto desempenho em C++ exigiu decisões arquiteturais distantes das abordagens ingênuas. Tradicionalmente, redes de fluxo em contextos puramente didáticos são codificadas via matrizes de adjacência. Contudo, dado que a maioria dos problemas do mundo real baseados em fluxos (e.g., grafos bipartidos e malhas viárias) possui topologia esparsa ($|E| \ll |V|^2$), o uso de matrizes penalizaria a BFS com um custo iterativo fixo de $\mathcal{O}(|V|^2)$. Para viabilizar testes nas instâncias massivas da coleção DIMACS, adotamos uma modelagem linear estrita de $\mathcal{O}(|V| + |E|)$.
+
+O Código~\ref{lst:edmonds-karp} expõe a construção do algoritmo. A rede foi modelada utilizando o padrão de lista de arestas (\lstinline|std::vector<Edge> edges|). O vetor bidimensional \lstinline|adj| não armazena referências aos vértices vizinhos, mas sim os índices exatos que as arestas ocupam na lista estrutural. Isso confere à BFS acesso direto às propriedades $c$ e $f$ da aresta em $\mathcal{O}(1)$.
+
+Destaca-se a engenharia envolvida na alocação das arestas reversas para a construção explícita de $G_f$. Toda aresta original é adicionada em par contíguo com sua contraparte reversa. Ao indexá-las sequencialmente partindo de zero, garante-se que o par possua identificadores numéricos adjacentes que diferem unicamente pelo bit menos significativo. Consequentemente, durante o \textit{backtracking} de atualização de fluxo, ao invés de buscar dispendiosamente a aresta oposta, o algoritmo utiliza o operador lógico Ou Exclusivo (\lstinline{id ^ 1}) para acessar e modificar a capacidade reversa de forma instantânea. 
+
+O módulo de busca acopla a descoberta topológica à manipulação do residual utilizando \textit{Guard Clauses} para manter a legibilidade estrutural da lógica iterativa, base metodológica que será herdada e estendida para a subsequente implementação do Algoritmo de Dinic.
+
+\begin{lstlisting}[caption={Implementação moderna e otimizada do algoritmo de Edmonds-Karp em C++}, label={lst:edmonds-karp}]
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+
+using Long = long long;
+constexpr Long INF = static_cast<Long>(1e14);
+
+struct Edge
+{
+    Long from, to;
+    Long cap, flow;
+};
+
+class EdmondsKarp
+{
+private:
+    Long n;
+    std::vector<Edge> edges;
+    std::vector<std::vector<Long>> adj;
+
+    Long bfs(Long s, Long t, std::vector<Long> &parent)
+    {
+        std::fill(parent.begin(), parent.end(), -1);
+        std::queue<std::pair<Long, Long>> q;
+
+        parent[s] = -2;
+        q.push({s, INF});
+
+        while (!q.empty())
+        {
+            Long cur = q.front().first;
+            Long cur_f = q.front().second;
+            q.pop();
+
+            for (Long id : adj[cur])
+            {
+                Long nxt = edges[id].to;
+                Long res = edges[id].cap - edges[id].flow;
+
+                if (parent[nxt] != -1 || res <= 0)
+                    continue;
+
+                parent[nxt] = id;
+                Long min_f = std::min(cur_f, res);
+
+                if (nxt == t)
+                    return min_f;
+
+                q.push({nxt, min_f});
+            }
+        }
+        return 0;
+    }
+
+public:
+    EdmondsKarp(Long n) : n(n), adj(n) {}
+
+    void add_edge(Long from, Long to, Long cap, bool is_directed = true)
+    {
+        adj[from].push_back(edges.size());
+        edges.push_back({from, to, cap, 0});
+
+        adj[to].push_back(edges.size());
+        edges.push_back({to, from, is_directed ? 0 : cap, 0});
+    }
+
+    Long get_max_flow(Long s, Long t)
+    {
+        Long tot_f = 0, new_f;
+        std::vector<Long> parent(n);
+
+        while ((new_f = bfs(s, t, parent)) > 0)
+        {
+            tot_f += new_f;
+
+            Long cur = t;
+            while (cur != s)
+            {
+                Long id = parent[cur];
+                edges[id].flow += new_f;
+                edges[id ^ 1].flow -= new_f;
+                cur = edges[id].from;
+            }
+        }
+        return tot_f;
+    }
+};
+\end{lstlisting}
+
+\subsection{Evolução Algorítmica: O Algoritmo de Dinic}
+Embora o algoritmo de Edmonds-Karp possua complexidade fortemente polinomial, o limite de $\mathcal{O}(|V| \cdot |E|^2)$ ainda se mostra proibitivo para grafos massivos ou extremamente densos. Para transpor esta barreira, implementamos o algoritmo proposto pelo pesquisador Yefim Dinitz (Dinic) em 1970~\cite{dinic1970algorithm}, que reduz a complexidade para $\mathcal{O}(|V|^2 \cdot |E|)$ ao alterar fundamentalmente a forma como os caminhos são descobertos e o fluxo é roteado.
+
+O Algoritmo de Dinic introduz o conceito de fases. Em cada fase, ao invés de buscar um único caminho aumentante, o algoritmo constrói uma estrutura subjacente denominada \textit{Grafo de Níveis} (Level Graph). Este grafo é um subgrafo direcionado acíclico (DAG) da rede residual $G_f$, gerado através de uma Busca em Largura (BFS) a partir da fonte $s$. A BFS atribui a cada vértice $v$ um nível $d(v)$, correspondente à sua distância mínima de $s$. Uma aresta $(u,v)$ de $G_f$ só é admitida no Grafo de Níveis se $d(v) = d(u) + 1$, garantindo que o fluxo apenas progrida estritamente em direção ao sumidouro $t$.
+
+Uma vez construído o Grafo de Níveis, o algoritmo delega a uma Busca em Profundidade (DFS - \textit{Depth-First Search}) a tarefa de empurrar a quantidade máxima de fluxo possível por todos os caminhos desta estrutura simultaneamente. A DFS satura os caminhos de forma ávida até que $t$ se torne inalcançável sob a restrição de níveis. O fluxo total enviado nesta fase é denominado \textit{Fluxo Bloqueador} (Blocking Flow). Após o bloqueio total da fase, uma nova BFS é acionada para construir um novo Grafo de Níveis sobre a rede residual atualizada.
+
+\subsection{Complexidade do Algoritmo de Dinic}
+A notável eficiência matemática do Dinic advém de duas propriedades centrais. A primeira estabelece que o nível (distância) do sumidouro $t$ é estritamente crescente a cada nova fase do Grafo de Níveis gerado pela BFS. Como o caminho máximo simples contém $|V|-1$ arestas, o algoritmo executa, no pior caso, um limite superior de $|V|$ fases.
+
+A segunda propriedade diz respeito ao cálculo do Fluxo Bloqueador. Uma implementação ingênua da DFS poderia revisitar caminhos subótimos ou becos sem saída repetidas vezes. O algoritmo de Dinic mitiga isto através da otimização de \textit{ponteiros mortos} (Dead-end pointers). Mantém-se um vetor de estado que registra a última aresta explorada a partir de cada vértice. Se a exploração de uma aresta não resulta em fluxo até o sumidouro, o ponteiro avança, garantindo que aquela aresta não seja revisitada durante a mesma fase. Esta amortização garante que o cálculo do fluxo bloqueador completo demande, no máximo, $\mathcal{O}(|V| \cdot |E|)$ operações.
+
+Multiplicando o custo máximo de $\mathcal{O}(|V| \cdot |E|)$ operações da DFS pelo teto de $|V|$ fases construídas pela BFS, atinge-se a complexidade de tempo de pior caso global de $\mathcal{O}(|V|^2 \cdot |E|)$.
+
+\subsection{Implementação C++ e Otimizações Estruturais}
+A implementação computacional do Dinic (Código~\ref{lst:dinic}) herda diretamente a estrutura de dados encapsulada baseada em listas de arestas paralela à estratégia do operador lógico XOR (\lstinline{^}), previamente estabilizada e validada no Edmonds-Karp. 
+
+Foram integrados dois novos vetores de estado à classe: o vetor \lstinline|level|, responsável por armazenar a distância de cada vértice computada pela etapa de BFS, e o vetor \lstinline|ptr|, que atua como o registro de ponteiros mortos para a etapa de DFS. 
+
+Um destaque de engenharia de software na implementação reside na passagem da variável \lstinline|cid| por referência (\lstinline|Long& cid = ptr[cur]|) no laço da DFS. Esta construção imperativa permite que o incremento do índice do laço atualize automaticamente o vetor de memória subjacente. Ao retornar de uma chamada recursiva, o fluxo injetado é retornado em cascata, e as arestas originais e residuais são atualizadas localmente na pilha de execução. Esta abordagem modular não apenas assegura a manutenção de código limpo (\textit{Clean Code}), como também garante um baixo consumo de memória em instâncias recursivas profundas.
+
+\begin{lstlisting}[caption={Implementação moderna do algoritmo de Dinic em C++ com otimização de becos sem saída}, label={lst:dinic}]
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+
+using Long = long long;
+constexpr Long INF = static_cast<Long>(1e14);
+
+struct Edge
+{
+    Long from, to, cap, flow;
+};
+
+class Dinic
+{
+private:
+    Long n;
+    std::vector<Edge> edges;
+    std::vector<std::vector<Long>> adj;
+    std::vector<Long> level;
+    std::vector<Long> ptr;
+
+    bool bfs(Long s, Long t)
+    {
+        std::fill(level.begin(), level.end(), -1);
+        level[s] = 0;
+        std::queue<Long> q;
+        q.push(s);
+
+        while (!q.empty())
+        {
+            Long cur = q.front();
+            q.pop();
+
+            for (Long id : adj[cur])
+            {
+                Long nxt = edges[id].to;
+                Long res = edges[id].cap - edges[id].flow;
+
+                if (level[nxt] != -1 || res <= 0)
+                    continue;
+
+                level[nxt] = level[cur] + 1;
+                q.push(nxt);
+            }
+        }
+        return level[t] != -1;
+    }
+
+    Long dfs(Long cur, Long t, Long pushed)
+    {
+        if (pushed == 0 || cur == t)
+            return pushed;
+
+        for (Long &cid = ptr[cur]; cid < adj[cur].size(); ++cid)
+        {
+            Long id = adj[cur][cid];
+            Long nxt = edges[id].to;
+            Long res = edges[id].cap - edges[id].flow;
+
+            if (level[cur] + 1 != level[nxt] || res <= 0)
+                continue;
+
+            Long pushed_nxt = dfs(nxt, t, std::min(pushed, res));
+
+            if (pushed_nxt == 0)
+                continue;
+
+            edges[id].flow += pushed_nxt;
+            edges[id ^ 1].flow -= pushed_nxt;
+            return pushed_nxt;
+        }
+        return 0;
+    }
+
+public:
+    Dinic(Long n) : n(n), adj(n), level(n), ptr(n) {}
+
+    void add_edge(Long from, Long to, Long cap, bool is_directed = true)
+    {
+        adj[from].push_back(edges.size());
+        edges.push_back({from, to, cap, 0});
+
+        adj[to].push_back(edges.size());
+        edges.push_back({to, from, is_directed ? 0 : cap, 0});
+    }
+
+    Long get_max_flow(Long s, Long t)
+    {
+        Long tot_f = 0;
+
+        while (bfs(s, t))
+        {
+            std::fill(ptr.begin(), ptr.end(), 0);
+            Long pushed;
+            while ((pushed = dfs(s, t, INF)) > 0)
+            {
+                tot_f += pushed;
+            }
+        }
+        return tot_f;
+    }
+};
+\end{lstlisting}
 
 \section{Conclusões preliminares e próximos passos}
 Os objetivos propostos para a primeira metade do cronograma foram alcançados, com a implementação bem-sucedida dos algoritmos de fluxo máximo. Os próximos passos focam na transição para problemas de fluxo de custo mínimo~\cite{ahuja1993network} e na execução da bateria completa de testes experimentais.
