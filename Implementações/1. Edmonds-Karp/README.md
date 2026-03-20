@@ -1,7 +1,10 @@
 # [Edmonds-Karp](https://cp-algorithms.com/graph/edmonds_karp.html)
  1. [Time Travel](https://judge.beecrowd.com/en/problems/view/2082)
- 2. [Array and Operations](https://codeforces.com/contest/498/problem/c)
- 3. [Red-Blue Graph](https://codeforces.com/contest/1288/problem/f)
+ 2. [Maximum Flow](https://codeforces.com/problemset/problem/843/E)
+ 3. [Fast Maximum Flow](https://www.spoj.com/problems/FASTFLOW/)
+ 4. [Download Speed](https://cses.fi/problemset/task/1694)
+ 5. [Array and Operations](https://codeforces.com/contest/498/problem/c)
+ 6. [Red-Blue Graph](https://codeforces.com/contest/1288/problem/f)
 
  ```cpp
  #include <iostream>

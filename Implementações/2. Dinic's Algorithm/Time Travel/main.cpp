@@ -8,7 +8,8 @@ constexpr Long INF = static_cast<Long>(1e14);
 
 struct Edge
 {
-    Long from, to, cap, flow;
+    Long from, to;
+    Long cap, flow;
 };
 
 class Dinic
