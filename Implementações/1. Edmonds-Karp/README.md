@@ -7,7 +7,7 @@
  6. [Red-Blue Graph](https://codeforces.com/contest/1288/problem/f)
 
  ```cpp
- #include <iostream>
+#include <iostream>
  #include <vector>
  #include <queue>
  #include <algorithm>
@@ -15,47 +15,51 @@
  using Long = long long;
  constexpr Long INF = static_cast<Long>(1e14);
 
- struct Edge
- {
-     Long from, to;
-     Long cap, flow;
- };
-
- class EdmondsKarp
- {
- private:
+ class MaxFlowBase {
+ protected:
+     struct Edge {
+         Long from, to;
+         Long cap, flow;
+     };
      Long n;
      std::vector<Edge> edges;
      std::vector<std::vector<Long>> adj;
 
-     Long bfs(Long s, Long t, std::vector<Long> &parent)
-     {
+ public:
+     MaxFlowBase(Long n) : n(n), adj(n) {}
+     virtual ~MaxFlowBase() = default;
+
+     virtual void add_edge(Long from, Long to, Long cap, bool is_directed = true) {
+         adj[from].push_back(edges.size());
+         edges.push_back({from, to, cap, 0});
+         adj[to].push_back(edges.size());
+         edges.push_back({to, from, is_directed ? 0 : cap, 0});
+     }
+
+     virtual Long compute_max_flow(Long s, Long t) = 0;
+ };
+
+ class EdmondsKarp : public MaxFlowBase {
+ private:
+     Long bfs(Long s, Long t, std::vector<Long>& parent) {
          std::fill(parent.begin(), parent.end(), -1);
          std::queue<std::pair<Long, Long>> q;
-
          parent[s] = -2;
          q.push({s, INF});
 
-         while (!q.empty())
-         {
+         while (!q.empty()) {
              Long cur = q.front().first;
              Long cur_f = q.front().second;
              q.pop();
 
-             for (Long id : adj[cur])
-             {
+             for (Long id : adj[cur]) {
                  Long nxt = edges[id].to;
                  Long res = edges[id].cap - edges[id].flow;
-
-                 if (parent[nxt] != -1 || res <= 0)
-                     continue;
+                 if (parent[nxt] != -1 || res <= 0) continue;
 
                  parent[nxt] = id;
                  Long min_f = std::min(cur_f, res);
-
-                 if (nxt == t)
-                     return min_f;
-
+                 if (nxt == t) return min_f;
                  q.push({nxt, min_f});
              }
          }
@@ -63,29 +67,16 @@
      }
 
  public:
-     EdmondsKarp(Long n) : n(n), adj(n) {}
+     EdmondsKarp(Long n) : MaxFlowBase(n) {}
 
-     void add_edge(Long from, Long to, Long cap, bool is_directed = true)
-     {
-         adj[from].push_back(edges.size());
-         edges.push_back({from, to, cap, 0});
-
-         adj[to].push_back(edges.size());
-         edges.push_back({to, from, is_directed ? 0 : cap, 0});
-     }
-
-     Long get_max_flow(Long s, Long t)
-     {
+     Long compute_max_flow(Long s, Long t) override {
          Long tot_f = 0, new_f;
          std::vector<Long> parent(n);
 
-         while ((new_f = bfs(s, t, parent)) > 0)
-         {
+         while ((new_f = bfs(s, t, parent)) > 0) {
              tot_f += new_f;
-
              Long cur = t;
-             while (cur != s)
-             {
+             while (cur != s) {
                  Long id = parent[cur];
                  edges[id].flow += new_f;
                  edges[id ^ 1].flow -= new_f;
