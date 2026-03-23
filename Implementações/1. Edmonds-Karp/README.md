@@ -7,7 +7,7 @@
  6. [Red-Blue Graph](https://codeforces.com/contest/1288/problem/f)
 
  ```cpp
-#include <iostream>
+ #include <iostream>
  #include <vector>
  #include <queue>
  #include <algorithm>
