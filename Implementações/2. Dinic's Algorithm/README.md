@@ -1,8 +1,8 @@
 # [Dinic's Algorithm](https://cp-algorithms.com/graph/dinic.html)
- 1. [Time Travel](https://judge.beecrowd.com/en/problems/view/2082)
- 2. [Maximum Flow](https://codeforces.com/problemset/problem/843/E)
- 3. [Fast Maximum Flow](https://www.spoj.com/problems/FASTFLOW/)
- 4. [Download Speed](https://cses.fi/problemset/task/1694)
+ 1. [Download Speed](https://cses.fi/problemset/task/1694)
+ 2. [School Dance](https://cses.fi/problemset/task/1696)
+ 3. [Distinct Routes](https://cses.fi/problemset/task/1711)
+ 4. [Time Travel](https://judge.beecrowd.com/en/problems/view/2082)
 
  ```cpp
  #include <iostream>
@@ -13,7 +13,7 @@
  using Long = long long;
  constexpr Long INF = static_cast<Long>(1e14);
 
- class MaxFlowBase {
+ class FlowNetwork {
  protected:
      struct Edge {
          Long from, to;
@@ -24,20 +24,20 @@
      std::vector<std::vector<Long>> adj;
 
  public:
-     MaxFlowBase(Long n) : n(n), adj(n) {}
-     virtual ~MaxFlowBase() = default;
+     FlowNetwork(Long n) : n(n), adj(n) {}
+     virtual ~FlowNetwork() = default;
 
-     virtual void add_edge(Long from, Long to, Long cap, bool is_directed = true) {
+     virtual void add_edge(Long from, Long to, Long cap, Long rev_cap = 0) {
          adj[from].push_back(edges.size());
          edges.push_back({from, to, cap, 0});
          adj[to].push_back(edges.size());
-         edges.push_back({to, from, is_directed ? 0 : cap, 0});
+         edges.push_back({to, from, rev_cap, 0});
      }
 
      virtual Long compute_max_flow(Long s, Long t) = 0;
  };
 
- class Dinic : public MaxFlowBase {
+ class Dinic : public FlowNetwork {
  private:
      std::vector<Long> level, ptr;
 
@@ -64,7 +64,7 @@
      Long dfs(Long cur, Long t, Long pushed) {
          if (pushed == 0 || cur == t) return pushed;
 
-         for (Long& cid = ptr[cur]; cid < adj[cur].size(); ++cid) {
+         for (Long& cid = ptr[cur]; cid < (Long)adj[cur].size(); ++cid) {
              Long id = adj[cur][cid];
              Long nxt = edges[id].to;
              Long res = edges[id].cap - edges[id].flow;
@@ -81,7 +81,7 @@
      }
 
  public:
-     Dinic(Long n) : MaxFlowBase(n), level(n), ptr(n) {}
+     Dinic(Long n) : FlowNetwork(n), level(n), ptr(n) {}
 
      Long compute_max_flow(Long s, Long t) override {
          Long tot_f = 0;
