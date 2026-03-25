@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <memory>
 
 using Long = long long;
 constexpr Long INF = static_cast<Long>(1e14);
@@ -19,6 +20,10 @@ protected:
 public:
     FlowNetwork(Long n) : n(n), adj(n) {}
     virtual ~FlowNetwork() = default;
+
+    virtual std::unique_ptr<FlowNetwork> make(Long n) const = 0;
+
+    virtual std::unique_ptr<FlowNetwork> clone() const = 0;
 
     virtual void add_edge(Long from, Long to, Long cap, Long rev_cap = 0) {
         adj[from].push_back(edges.size());
@@ -60,6 +65,18 @@ private:
 public:
     EdmondsKarp(Long n) : FlowNetwork(n) {}
 
+    static std::unique_ptr<FlowNetwork> create(Long n) {
+        return std::make_unique<EdmondsKarp>(n);
+    }
+
+    std::unique_ptr<FlowNetwork> make(Long n) const override {
+        return std::make_unique<EdmondsKarp>(n);
+    }
+
+    std::unique_ptr<FlowNetwork> clone() const override {
+        return std::make_unique<EdmondsKarp>(*this);
+    }
+
     Long compute_max_flow(Long s, Long t) override {
         Long tot_f = 0, new_f;
         std::vector<Long> parent(n);
@@ -94,14 +111,14 @@ void task()
         cap[v][u] = c;
     }
 
-    EdmondsKarp fn(n);
+    auto fn = EdmondsKarp::create(n);
     for (Long i = 0; i < n; i++)
     {
         for (Long j = i + 1; j < n; j++)
         {
             if (cap[i][j] > 0)
             {
-                fn.add_edge(i, j, cap[i][j], cap[i][j]);
+                fn->add_edge(i, j, cap[i][j], cap[i][j]);
             }
         }
     }
@@ -109,8 +126,8 @@ void task()
     Long global_min_cut = INF;
     for (Long t = 1; t < n; t++)
     {
-        EdmondsKarp fn_copy = fn;
-        Long current_flow = fn_copy.compute_max_flow(0, t);
+        auto fn_clone = fn->clone();
+        Long current_flow = fn_clone->compute_max_flow(0, t);
         global_min_cut = std::min(global_min_cut, current_flow);
     }
 
@@ -119,6 +136,10 @@ void task()
 
 int main(void)
 {
+    std::ios_base::sync_with_stdio(false);
+    std::cout.tie(nullptr);
+    std::cin.tie(nullptr);
+
     Long t;
     std::cin >> t;
     while (t--)

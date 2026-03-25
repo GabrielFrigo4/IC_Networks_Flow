@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <memory>
 
 using Long = long long;
 constexpr Long INF = static_cast<Long>(1e14);
@@ -19,6 +20,10 @@ protected:
 public:
     FlowNetwork(Long n) : n(n), adj(n) {}
     virtual ~FlowNetwork() = default;
+
+    virtual std::unique_ptr<FlowNetwork> make(Long n) const = 0;
+
+    virtual std::unique_ptr<FlowNetwork> clone() const = 0;
 
     virtual void add_edge(Long from, Long to, Long cap, Long rev_cap = 0) {
         adj[from].push_back(edges.size());
@@ -60,6 +65,18 @@ private:
 public:
     EdmondsKarp(Long n) : FlowNetwork(n) {}
 
+    static std::unique_ptr<FlowNetwork> create(Long n) {
+        return std::make_unique<EdmondsKarp>(n);
+    }
+
+    std::unique_ptr<FlowNetwork> make(Long n) const override {
+        return std::make_unique<EdmondsKarp>(n);
+    }
+
+    std::unique_ptr<FlowNetwork> clone() const override {
+        return std::make_unique<EdmondsKarp>(*this);
+    }
+
     Long compute_max_flow(Long s, Long t) override {
         Long tot_f = 0, new_f;
         std::vector<Long> parent(n);
@@ -83,21 +100,25 @@ void task()
     Long n, m;
     std::cin >> n >> m;
 
-    EdmondsKarp fn(n);
+    auto fn = EdmondsKarp::create(n);
     for (Long k = 0; k < m; k++)
     {
         Long u, v, c;
         std::cin >> u >> v >> c;
         u--;
         v--;
-        fn.add_edge(u, v, c);
+        fn->add_edge(u, v, c);
     }
 
-    std::cout << fn.compute_max_flow(0, n - 1) << std::endl;
+    std::cout << fn->compute_max_flow(0, n - 1) << std::endl;
 }
 
 int main(void)
 {
+    std::ios_base::sync_with_stdio(false);
+    std::cout.tie(nullptr);
+    std::cin.tie(nullptr);
+
     task();
     return 0;
 }

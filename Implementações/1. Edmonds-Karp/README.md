@@ -9,6 +9,7 @@
  #include <vector>
  #include <queue>
  #include <algorithm>
+ #include <memory>
 
  using Long = long long;
  constexpr Long INF = static_cast<Long>(1e14);
@@ -26,6 +27,10 @@
  public:
      FlowNetwork(Long n) : n(n), adj(n) {}
      virtual ~FlowNetwork() = default;
+
+     virtual std::unique_ptr<FlowNetwork> make(Long n) const = 0;
+
+     virtual std::unique_ptr<FlowNetwork> clone() const = 0;
 
      virtual void add_edge(Long from, Long to, Long cap, Long rev_cap = 0) {
          adj[from].push_back(edges.size());
@@ -66,6 +71,18 @@
 
  public:
      EdmondsKarp(Long n) : FlowNetwork(n) {}
+
+     static std::unique_ptr<FlowNetwork> create(Long n) {
+         return std::make_unique<EdmondsKarp>(n);
+     }
+
+     std::unique_ptr<FlowNetwork> make(Long n) const override {
+         return std::make_unique<EdmondsKarp>(n);
+     }
+
+     std::unique_ptr<FlowNetwork> clone() const override {
+         return std::make_unique<EdmondsKarp>(*this);
+     }
 
      Long compute_max_flow(Long s, Long t) override {
          Long tot_f = 0, new_f;

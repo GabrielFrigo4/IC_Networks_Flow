@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <memory>
 
 using Long = long long;
 constexpr Long INF = static_cast<Long>(1e14);
@@ -20,6 +21,10 @@ public:
 
     FlowNetwork(Long n) : n(n), adj(n) {}
     virtual ~FlowNetwork() = default;
+
+    virtual std::unique_ptr<FlowNetwork> make(Long n) const = 0;
+
+    virtual std::unique_ptr<FlowNetwork> clone() const = 0;
 
     virtual void add_edge(Long from, Long to, Long cap, Long rev_cap = 0) {
         adj[from].push_back(edges.size());
@@ -77,6 +82,18 @@ private:
 public:
     Dinic(Long n) : FlowNetwork(n), level(n), ptr(n) {}
 
+    static std::unique_ptr<FlowNetwork> create(Long n) {
+        return std::make_unique<Dinic>(n);
+    }
+
+    std::unique_ptr<FlowNetwork> make(Long n) const override {
+        return std::make_unique<Dinic>(n);
+    }
+
+    std::unique_ptr<FlowNetwork> clone() const override {
+        return std::make_unique<Dinic>(*this);
+    }
+
     Long compute_max_flow(Long s, Long t) override {
         Long tot_f = 0;
         while (bfs(s, t)) {
@@ -93,25 +110,25 @@ void task()
     Long n, m, k;
     std::cin >> n >> m >> k;
 
-    Dinic fn(n + m + 2);
+    auto fn = Dinic::create(n + m + 2);
     for (Long i = 1; i <= n; i++)
     {
-        fn.add_edge(0, i, 1);
+        fn->add_edge(0, i, 1);
     }
     for (Long i = n + 1; i <= n + m; i++)
     {
-        fn.add_edge(i, n + m + 1, 1);
+        fn->add_edge(i, n + m + 1, 1);
     }
     for (Long i = 0; i < k; i++)
     {
         Long u, v;
         std::cin >> u >> v;
         v += n;
-        fn.add_edge(u, v, 1);
+        fn->add_edge(u, v, 1);
     }
 
-    std::cout << fn.compute_max_flow(0, n + m + 1) << std::endl;
-    for (const auto& e : fn.edges) {
+    std::cout << fn->compute_max_flow(0, n + m + 1) << std::endl;
+    for (const auto& e : fn->edges) {
         if (e.from >= 1 && e.from <= n && e.to > n && e.to <= n + m && e.flow == 1) {
             std::cout << e.from << " " << e.to - n << std::endl;
         }
@@ -120,6 +137,10 @@ void task()
 
 int main(void)
 {
+    std::ios_base::sync_with_stdio(false);
+    std::cout.tie(nullptr);
+    std::cin.tie(nullptr);
+
     task();
     return 0;
 }
