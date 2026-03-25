@@ -92,47 +92,21 @@ void task()
     Long n, m;
     std::cin >> n >> m;
 
-    std::vector<std::vector<Long>> cap(n, std::vector<Long>(n, 0));
+    Dinic fn(n);
     for (Long k = 0; k < m; k++)
     {
         Long u, v, c;
         std::cin >> u >> v >> c;
         u--;
         v--;
-        cap[u][v] = c;
-        cap[v][u] = c;
+        fn.add_edge(u, v, c);
     }
 
-    Dinic fn(n);
-    for (Long i = 0; i < n; i++)
-    {
-        for (Long j = i + 1; j < n; j++)
-        {
-            if (cap[i][j] > 0)
-            {
-                fn.add_edge(i, j, cap[i][j], cap[i][j]);
-            }
-        }
-    }
-
-    Long global_min_cut = INF;
-    for (Long t = 1; t < n; t++)
-    {
-        Dinic fn_copy = fn;
-        Long current_flow = fn_copy.compute_max_flow(0, t);
-        global_min_cut = std::min(global_min_cut, current_flow);
-    }
-
-    std::cout << global_min_cut << std::endl;
+    std::cout << fn.compute_max_flow(0, n - 1) << std::endl;
 }
 
 int main(void)
 {
-    Long t;
-    std::cin >> t;
-    while (t--)
-    {
-        task();
-    }
+    task();
     return 0;
 }

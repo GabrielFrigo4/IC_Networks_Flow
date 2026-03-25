@@ -8,15 +8,16 @@ constexpr Long INF = static_cast<Long>(1e14);
 
 class FlowNetwork {
 protected:
+    Long n;
+    std::vector<std::vector<Long>> adj;
+
+public:
     struct Edge {
         Long from, to;
         Long cap, flow;
     };
-    Long n;
     std::vector<Edge> edges;
-    std::vector<std::vector<Long>> adj;
 
-public:
     FlowNetwork(Long n) : n(n), adj(n) {}
     virtual ~FlowNetwork() = default;
 
@@ -80,50 +81,36 @@ public:
 
 void task()
 {
-    Long n, m;
-    std::cin >> n >> m;
+    Long n, m, k;
+    std::cin >> n >> m >> k;
 
-    std::vector<std::vector<Long>> cap(n, std::vector<Long>(n, 0));
-    for (Long k = 0; k < m; k++)
+    EdmondsKarp fn(n + m + 2);
+    for (Long i = 1; i <= n; i++)
     {
-        Long u, v, c;
-        std::cin >> u >> v >> c;
-        u--;
-        v--;
-        cap[u][v] = c;
-        cap[v][u] = c;
+        fn.add_edge(0, i, 1);
+    }
+    for (Long i = n + 1; i <= n + m; i++)
+    {
+        fn.add_edge(i, n + m + 1, 1);
+    }
+    for (Long i = 0; i < k; i++)
+    {
+        Long u, v;
+        std::cin >> u >> v;
+        v += n;
+        fn.add_edge(u, v, 1);
     }
 
-    EdmondsKarp fn(n);
-    for (Long i = 0; i < n; i++)
-    {
-        for (Long j = i + 1; j < n; j++)
-        {
-            if (cap[i][j] > 0)
-            {
-                fn.add_edge(i, j, cap[i][j], cap[i][j]);
-            }
+    std::cout << fn.compute_max_flow(0, n + m + 1) << std::endl;
+    for (const auto& e : fn.edges) {
+        if (e.from >= 1 && e.from <= n && e.to > n && e.to <= n + m && e.flow == 1) {
+            std::cout << e.from << " " << e.to - n << std::endl;
         }
     }
-
-    Long global_min_cut = INF;
-    for (Long t = 1; t < n; t++)
-    {
-        EdmondsKarp fn_copy = fn;
-        Long current_flow = fn_copy.compute_max_flow(0, t);
-        global_min_cut = std::min(global_min_cut, current_flow);
-    }
-
-    std::cout << global_min_cut << std::endl;
 }
 
 int main(void)
 {
-    Long t;
-    std::cin >> t;
-    while (t--)
-    {
-        task();
-    }
+    task();
     return 0;
 }
