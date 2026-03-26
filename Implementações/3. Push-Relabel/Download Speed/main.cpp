@@ -7,6 +7,7 @@
 
 using Long = long long;
 using Size = std::size_t;
+
 constexpr Long INF = std::numeric_limits<Long>::max() >> 8;
 constexpr Size MAX = std::numeric_limits<Size>::max() >> 8;
 
@@ -16,28 +17,46 @@ protected:
 	struct Edge
 	{
 		Size from, to;
-		Long cap, flow;
+		Long capacity, flow;
 	};
 	Size size;
 	std::vector<Edge> edges;
 	std::vector<std::vector<Size>> adj;
 
+	[[nodiscard]] Long get_residual_capacity(Size edge_id) const
+	{
+		return edges[edge_id].capacity - edges[edge_id].flow;
+	}
+
+	void push_flow(Size edge_id, Long flow_amount)
+	{
+		edges[edge_id].flow += flow_amount;
+		edges[edge_id ^ 1ULL].flow -= flow_amount;
+	}
+
 public:
-	FlowNetwork(Size n) : size(n), adj(n) {}
+	explicit FlowNetwork(Size n) : size(n), adj(n) {}
 	virtual ~FlowNetwork() = default;
 
 	virtual std::unique_ptr<FlowNetwork> make(Size n) const = 0;
 	virtual std::unique_ptr<FlowNetwork> clone() const = 0;
 
-	virtual void add_edge(Size from, Size to, Long cap, Long rev_cap = 0)
+	virtual void add_edge(
+	    Size from, Size to, Long capacity, Long reverse_capacity = 0
+	)
 	{
 		adj[from].push_back(edges.size());
-		edges.push_back({from, to, cap, 0});
+		edges.push_back({from, to, capacity, 0});
 		adj[to].push_back(edges.size());
-		edges.push_back({to, from, rev_cap, 0});
+		edges.push_back({to, from, reverse_capacity, 0});
 	}
 
-	virtual Long compute_max_flow(Size s, Size t) = 0;
+	virtual Long compute_max_flow(Size source, Size sink) = 0;
+
+	[[nodiscard]] const std::vector<Edge> &get_edges() const
+	{
+		return edges;
+	}
 };
 
 class PushRelabel : public FlowNetwork
@@ -46,40 +65,65 @@ private:
 	std::vector<Size> height;
 	std::vector<Long> excess;
 
-	void push(Size cur, Size id)
+	void push_preflow(Size current_node, Size edge_id)
 	{
-		Size nxt = edges[id].to;
-		Long res = edges[id].cap - edges[id].flow;
-		Long tr = std::min(excess[cur], res);
+		Size next_node = edges[edge_id].to;
+		Long residual_capacity = get_residual_capacity(edge_id);
+		Long flow_to_push = std::min(excess[current_node], residual_capacity);
 
-		if (tr == 0)
+		if (flow_to_push == 0)
 			return;
 
-		edges[id].flow += tr;
-		edges[id ^ 1ULL].flow -= tr;
-		excess[cur] -= tr;
-		excess[nxt] += tr;
+		push_flow(edge_id, flow_to_push);
+		excess[current_node] -= flow_to_push;
+		excess[next_node] += flow_to_push;
 	}
 
-	void relabel(Size cur)
+	void relabel_node(Size current_node)
 	{
-		Size min_h = MAX;
-		for (Size id : adj[cur])
+		Size min_height = MAX;
+		for (Size edge_id : adj[current_node])
 		{
-			Long res = edges[id].cap - edges[id].flow;
-			if (res > 0)
+			if (get_residual_capacity(edge_id) > 0)
 			{
-				min_h = std::min(min_h, height[edges[id].to]);
+				min_height = std::min(min_height, height[edges[edge_id].to]);
 			}
 		}
-		if (min_h != MAX)
+		if (min_height != MAX)
 		{
-			height[cur] = min_h + 1;
+			height[current_node] = min_height + 1;
+		}
+	}
+
+	void initialize_preflow(
+	    Size source, Size sink, std::queue<Size> &active_queue,
+	    std::vector<bool> &in_queue
+	)
+	{
+		std::fill(height.begin(), height.end(), 0);
+		std::fill(excess.begin(), excess.end(), 0);
+
+		height[source] = size;
+		excess[source] = INF;
+
+		for (Size edge_id : adj[source])
+		{
+			if (get_residual_capacity(edge_id) > 0)
+			{
+				push_preflow(source, edge_id);
+				Size next_node = edges[edge_id].to;
+				if (next_node != source && next_node != sink &&
+				    !in_queue[next_node])
+				{
+					active_queue.push(next_node);
+					in_queue[next_node] = true;
+				}
+			}
 		}
 	}
 
 public:
-	PushRelabel(Size n) : FlowNetwork(n), height(n), excess(n) {}
+	explicit PushRelabel(Size n) : FlowNetwork(n), height(n), excess(n) {}
 
 	static std::unique_ptr<FlowNetwork> create(Size n)
 	{
@@ -96,95 +140,79 @@ public:
 		return std::make_unique<PushRelabel>(*this);
 	}
 
-	Long compute_max_flow(Size s, Size t) override
+	Long compute_max_flow(Size source, Size sink) override
 	{
-		std::fill(height.begin(), height.end(), 0);
-		std::fill(excess.begin(), excess.end(), 0);
-
-		height[s] = size;
-		excess[s] = INF;
-
-		std::queue<Size> q;
+		std::queue<Size> active_queue;
 		std::vector<bool> in_queue(size, false);
 
-		for (Size id : adj[s])
+		initialize_preflow(source, sink, active_queue, in_queue);
+
+		while (!active_queue.empty())
 		{
-			Long res = edges[id].cap - edges[id].flow;
-			if (res > 0)
+			Size current_node = active_queue.front();
+			active_queue.pop();
+			in_queue[current_node] = false;
+
+			while (excess[current_node] > 0)
 			{
-				push(s, id);
-				Size nxt = edges[id].to;
-				if (nxt != s && nxt != t && !in_queue[nxt])
+				bool has_pushed = false;
+				for (Size edge_id : adj[current_node])
 				{
-					q.push(nxt);
-					in_queue[nxt] = true;
-				}
-			}
-		}
+					Size next_node = edges[edge_id].to;
+					Long residual_capacity = get_residual_capacity(edge_id);
 
-		while (!q.empty())
-		{
-			Size cur = q.front();
-			q.pop();
-			in_queue[cur] = false;
-
-			while (excess[cur] > 0)
-			{
-				bool pushed = false;
-				for (Size id : adj[cur])
-				{
-					Size nxt = edges[id].to;
-					Long res = edges[id].cap - edges[id].flow;
-
-					if (res > 0 && height[cur] == height[nxt] + 1)
+					if (residual_capacity > 0 &&
+					    height[current_node] == height[next_node] + 1)
 					{
-						push(cur, id);
-						pushed = true;
+						push_preflow(current_node, edge_id);
+						has_pushed = true;
 
-						if (nxt != s && nxt != t && !in_queue[nxt] && excess[nxt] > 0)
+						if (next_node != source && next_node != sink &&
+						    !in_queue[next_node] && excess[next_node] > 0)
 						{
-							q.push(nxt);
-							in_queue[nxt] = true;
+							active_queue.push(next_node);
+							in_queue[next_node] = true;
 						}
 
-						if (excess[cur] == 0)
+						if (excess[current_node] == 0)
 							break;
 					}
 				}
 
-				if (!pushed)
+				if (!has_pushed)
 				{
-					relabel(cur);
+					relabel_node(current_node);
 				}
 			}
 		}
 
-		return excess[t];
+		return excess[sink];
 	}
 };
 
 void task()
 {
-	Size n, m;
-	if (!(std::cin >> n >> m))
+	Size num_nodes, num_edges;
+	if (!(std::cin >> num_nodes >> num_edges))
 		return;
 
-	auto fn = PushRelabel::create(n);
-	for (Size k = 0; k < m; k++)
+	auto fn = PushRelabel::create(num_nodes);
+	for (Size k = 0; k < num_edges; k++)
 	{
-		Size u, v;
-		Long c;
-		std::cin >> u >> v >> c;
-		fn->add_edge(u - 1, v - 1, c);
+		Size from_node, to_node;
+		Long capacity;
+		std::cin >> from_node >> to_node >> capacity;
+		fn->add_edge(from_node - 1, to_node - 1, capacity);
 	}
 
-	std::cout << fn->compute_max_flow(0, n - 1) << "\n";
+	std::cout << fn->compute_max_flow(0, num_nodes - 1) << "\n";
 }
 
 int main(void)
 {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(nullptr);
+
 	task();
 	return 0;
 }

@@ -2,8 +2,8 @@
  - [X] Implementar `Ford-Fulkerson`
  - [X] Implementar `Edmonds-Karp`
  - [X] Implementar `Dinic's Algorithm`
- - [-] Implementar `Push-Relabel`
- - [-] Implementar `Push-Relabel Improved`
+ - [X] Implementar `Push-Relabel`
+ - [X] Implementar `Push-Relabel Improved`
  - [ ] Reduzir Problemas para `MaxFlow`
  - [ ] Modelar Problemas para `MaxFlow`
 

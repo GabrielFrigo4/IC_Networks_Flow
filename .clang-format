@@ -6,7 +6,7 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 AlignAfterOpenBracket: BlockIndent
 BinPackArguments: false
 PenaltyBreakAssignment: 4096
-ColumnLimit: 96
+ColumnLimit: 80
 
 UseTab: ForIndentation
 AccessModifierOffset: -4

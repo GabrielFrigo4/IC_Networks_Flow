@@ -7,92 +7,123 @@
 
 using Long = long long;
 using Size = std::size_t;
+
 constexpr Long INF = std::numeric_limits<Long>::max() >> 8;
 constexpr Size MAX = std::numeric_limits<Size>::max() >> 8;
 
 class FlowNetwork
 {
 protected:
-	Size size;
-	std::vector<std::vector<Size>> adj;
-
-public:
 	struct Edge
 	{
 		Size from, to;
-		Long cap, flow;
+		Long capacity, flow;
 	};
+	Size size;
 	std::vector<Edge> edges;
+	std::vector<std::vector<Size>> adj;
 
-	FlowNetwork(Size n) : size(n), adj(n) {}
+	[[nodiscard]] Long get_residual_capacity(Size edge_id) const
+	{
+		return edges[edge_id].capacity - edges[edge_id].flow;
+	}
+
+	void push_flow(Size edge_id, Long flow_amount)
+	{
+		edges[edge_id].flow += flow_amount;
+		edges[edge_id ^ 1ULL].flow -= flow_amount;
+	}
+
+public:
+	explicit FlowNetwork(Size n) : size(n), adj(n) {}
 	virtual ~FlowNetwork() = default;
 
 	virtual std::unique_ptr<FlowNetwork> make(Size n) const = 0;
 	virtual std::unique_ptr<FlowNetwork> clone() const = 0;
 
-	virtual void add_edge(Size from, Size to, Long cap, Long rev_cap = 0)
+	virtual void add_edge(
+	    Size from, Size to, Long capacity, Long reverse_capacity = 0
+	)
 	{
 		adj[from].push_back(edges.size());
-		edges.push_back({from, to, cap, 0});
+		edges.push_back({from, to, capacity, 0});
 		adj[to].push_back(edges.size());
-		edges.push_back({to, from, rev_cap, 0});
+		edges.push_back({to, from, reverse_capacity, 0});
 	}
 
-	virtual Long compute_max_flow(Size s, Size t) = 0;
+	virtual Long compute_max_flow(Size source, Size sink) = 0;
+
+	[[nodiscard]] const std::vector<Edge> &get_edges() const
+	{
+		return edges;
+	}
 };
 
 class Dinic : public FlowNetwork
 {
 private:
 	std::vector<Size> level;
-	std::vector<Size> ptr;
+	std::vector<Size> next_edge_ptr;
 
-	bool bfs(Size s, Size t)
+	bool bfs(Size source, Size sink)
 	{
 		std::fill(level.begin(), level.end(), MAX);
-		level[s] = 0;
-		std::queue<Size> q;
-		q.push(s);
-		while (!q.empty())
+		std::queue<Size> queue;
+
+		level[source] = 0;
+		queue.push(source);
+
+		while (!queue.empty())
 		{
-			Size cur = q.front();
-			q.pop();
-			for (Size id : adj[cur])
+			Size current_node = queue.front();
+			queue.pop();
+
+			for (Size edge_id : adj[current_node])
 			{
-				Size nxt = edges[id].to;
-				Long res = edges[id].cap - edges[id].flow;
-				if (level[nxt] != MAX || res <= 0)
+				Size next_node = edges[edge_id].to;
+				Long residual_capacity = get_residual_capacity(edge_id);
+
+				if (level[next_node] != MAX || residual_capacity <= 0)
 					continue;
-				level[nxt] = level[cur] + 1;
-				q.push(nxt);
+
+				level[next_node] = level[current_node] + 1;
+				queue.push(next_node);
 			}
 		}
-		return level[t] != MAX;
+		return level[sink] != MAX;
 	}
 
-	Long dfs(Size cur, Size t, Long pushed)
+	Long dfs(Size current_node, Size sink, Long flow_pushed)
 	{
-		if (pushed == 0 || cur == t)
-			return pushed;
-		for (Size &cid = ptr[cur]; cid < adj[cur].size(); ++cid)
+		if (flow_pushed == 0 || current_node == sink)
+			return flow_pushed;
+
+		for (Size &ptr = next_edge_ptr[current_node];
+		     ptr < adj[current_node].size();
+		     ++ptr)
 		{
-			Size id = adj[cur][cid];
-			Size nxt = edges[id].to;
-			Long res = edges[id].cap - edges[id].flow;
-			if (level[cur] + 1 != level[nxt] || res <= 0)
+			Size edge_id = adj[current_node][ptr];
+			Size next_node = edges[edge_id].to;
+			Long residual_capacity = get_residual_capacity(edge_id);
+
+			if (level[current_node] + 1 != level[next_node] ||
+			    residual_capacity <= 0)
 				continue;
-			Long tr = dfs(nxt, t, std::min(pushed, res));
-			if (tr == 0)
+
+			Long bottleneck = std::min(flow_pushed, residual_capacity);
+			Long flow_transmitted = dfs(next_node, sink, bottleneck);
+
+			if (flow_transmitted == 0)
 				continue;
-			edges[id].flow += tr;
-			edges[id ^ 1ULL].flow -= tr;
-			return tr;
+
+			push_flow(edge_id, flow_transmitted);
+			return flow_transmitted;
 		}
 		return 0;
 	}
 
 public:
-	Dinic(Size n) : FlowNetwork(n), level(n), ptr(n) {}
+	explicit Dinic(Size n) : FlowNetwork(n), level(n), next_edge_ptr(n) {}
 
 	static std::unique_ptr<FlowNetwork> create(Size n)
 	{
@@ -109,47 +140,58 @@ public:
 		return std::make_unique<Dinic>(*this);
 	}
 
-	Long compute_max_flow(Size s, Size t) override
+	Long compute_max_flow(Size source, Size sink) override
 	{
-		Long tot_f = 0;
-		while (bfs(s, t))
+		Long total_flow = 0;
+		while (bfs(source, sink))
 		{
-			std::fill(ptr.begin(), ptr.end(), 0);
-			while (Long pushed = dfs(s, t, INF))
-				tot_f += pushed;
+			std::fill(next_edge_ptr.begin(), next_edge_ptr.end(), 0);
+			while (Long flow_pushed = dfs(source, sink, INF))
+			{
+				total_flow += flow_pushed;
+			}
 		}
-		return tot_f;
+		return total_flow;
 	}
 };
 
 void task()
 {
-	Size n, m, k;
-	std::cin >> n >> m >> k;
+	Size num_boys, num_girls, num_potential_pairs;
+	if (!(std::cin >> num_boys >> num_girls >> num_potential_pairs))
+		return;
 
-	auto fn = Dinic::create(n + m + 2);
-	for (Size i = 1; i <= n; i++)
+	Size total_nodes = num_boys + num_girls + 2;
+	Size source = 0;
+	Size sink = total_nodes - 1;
+
+	auto fn = Dinic::create(total_nodes);
+
+	for (Size i = 1; i <= num_boys; i++)
 	{
-		fn->add_edge(0, i, 1);
-	}
-	for (Size i = n + 1; i <= n + m; i++)
-	{
-		fn->add_edge(i, n + m + 1, 1);
-	}
-	for (Size i = 0; i < k; i++)
-	{
-		Size u, v;
-		std::cin >> u >> v;
-		v += n;
-		fn->add_edge(u, v, 1);
+		fn->add_edge(source, i, 1);
 	}
 
-	std::cout << fn->compute_max_flow(0, n + m + 1) << std::endl;
-	for (const auto &e : fn->edges)
+	for (Size i = 1; i <= num_girls; i++)
 	{
-		if (e.from >= 1 && e.from <= n && e.to > n && e.to <= n + m && e.flow == 1)
+		fn->add_edge(num_boys + i, sink, 1);
+	}
+
+	for (Size i = 0; i < num_potential_pairs; i++)
+	{
+		Size boy, girl;
+		std::cin >> boy >> girl;
+		fn->add_edge(boy, num_boys + girl, 1);
+	}
+
+	std::cout << fn->compute_max_flow(source, sink) << "\n";
+
+	for (const auto &edge : fn->get_edges())
+	{
+		if (edge.from >= 1 && edge.from <= num_boys && edge.to > num_boys &&
+		    edge.to < sink && edge.flow == 1)
 		{
-			std::cout << e.from << " " << e.to - n << std::endl;
+			std::cout << edge.from << " " << edge.to - num_boys << "\n";
 		}
 	}
 }
@@ -157,7 +199,6 @@ void task()
 int main(void)
 {
 	std::ios_base::sync_with_stdio(false);
-	std::cout.tie(nullptr);
 	std::cin.tie(nullptr);
 
 	task();
