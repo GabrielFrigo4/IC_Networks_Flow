@@ -169,7 +169,7 @@ O módulo de busca acopla a descoberta topológica à manipulação do residual 
 #include <algorithm>
 
 using Long = long long;
-constexpr Long INF = std::numeric_limits<Long>::max() / 4;
+constexpr Long INF = std::numeric_limits<Long>::max() << 8;
 
 struct Edge
 {
@@ -281,7 +281,7 @@ Um destaque de engenharia de software na implementação reside na passagem da v
 #include <algorithm>
 
 using Long = long long;
-constexpr Long INF = std::numeric_limits<Long>::max() / 4;
+constexpr Long INF = std::numeric_limits<Long>::max() << 8;
 
 struct Edge
 {
