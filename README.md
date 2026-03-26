@@ -76,7 +76,6 @@
 [dinic_algorithm]: ./Implementações/2.%20Dinic's%20Algorithm/README.md
 [push_relabel]: ./Implementações/3.%20Push-Relabel/README.md
 [push_relabel_faster]: ./Implementações/4.%20Push-Relabel%20Improved/README.md
-[mpm_algorithm]: ./Implementações/5.%20MPM%20Algorithm/README.md
 
 [baixar_pdf_ic]: https://github.com/GabrielFrigo4/IC_Networks_Flow/releases/latest/download/ic.pdf
 [baixar_pdf_ic_icon]: https://img.shields.io/badge/IC-Baixar-red?style=for-the-badge&logo=adobeacrobatreader

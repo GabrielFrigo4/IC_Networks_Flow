@@ -4,7 +4,6 @@
  - [X] Implementar `Dinic's Algorithm`
  - [-] Implementar `Push-Relabel`
  - [-] Implementar `Push-Relabel Improved`
- - [-] Implementar `MPM Algorithm`
  - [ ] Reduzir Problemas para `MaxFlow`
  - [ ] Modelar Problemas para `MaxFlow`
 
