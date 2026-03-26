@@ -7,8 +7,8 @@
 
 using Long = long long;
 using Size = std::size_t;
-constexpr Long INF = static_cast<Long>(1e14);
-constexpr Size MAX = std::numeric_limits<Size>::max();
+constexpr Long INF = std::numeric_limits<Long>::max() / 4;
+constexpr Size MAX = std::numeric_limits<Size>::max() / 4;
 
 class FlowNetwork
 {

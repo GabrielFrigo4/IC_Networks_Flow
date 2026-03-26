@@ -2,9 +2,9 @@
  - [X] Implementar `Ford-Fulkerson`
  - [X] Implementar `Edmonds-Karp`
  - [X] Implementar `Dinic's Algorithm`
- - [ ] Implementar `Push-Relabel`
- - [ ] Implementar `Push-Relabel Improved`
- - [ ] Implementar `MPM Algorithm`
+ - [-] Implementar `Push-Relabel`
+ - [-] Implementar `Push-Relabel Improved`
+ - [-] Implementar `MPM Algorithm`
  - [ ] Reduzir Problemas para `MaxFlow`
  - [ ] Modelar Problemas para `MaxFlow`
 
@@ -12,13 +12,14 @@
  - [X] Procurar Modelo de Relatório (no site da UFABC)
  - [X] Transformar em LaTeX
  - [X] Preencher as seções que são iguais/semelhantes às do projeto
- - [-] Escrever os códigos fluxo máximo EK, Dinic, e mais um.
+ - [X] Escrever os códigos fluxo máximo EK, Dinic, e mais um.
  - [X] Testar eles em alguma plataforma (CSES)
- - [X] Emparelhamento bipartido (CSES)
+ - [X] Emparelhamento Bipartido (CSES)
  - [ ] Caminhos disjuntos nas arestas ou corte mínimo (CSES)
 
-# TO-DO (Etapas)
- 1. Entender os algoritmos de fluxo máximo: Corresponde à `Atividade 2`.
- 2. Implementar os problemas de fluxo máximo: Corresponde à `Atividade 3`.
- 3. Reduzir problemas para problemas de fluxo máximo: Corresponde à `Atividade 4`.
- 4. Implementar os problemas reduzidos para fluxo máximo: Corresponde à `Atividade 5`.
+# TO-DO (LaTeX)
+ - [ ] Emparelhamento Máximo
+ - [ ] Cobertura de Vértices Mínima
+ - [ ] Conjunto Independente Máximo
+ - [ ] Teorema da Integralidade
+ - [ ] Teorema de König e a Dualidade

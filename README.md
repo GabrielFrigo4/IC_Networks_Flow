@@ -57,7 +57,6 @@
  * 🚀 **[Dinic's Algorithm][dinic_algorithm]**
  * ⚙️ **[Push-Relabel][push_relabel]**
  * ⚡ **[Push-Relabel Improved][push_relabel_faster]**
- * 🔥 **[MPM Algorithm][mpm_algorithm]**
 
 ---
 
