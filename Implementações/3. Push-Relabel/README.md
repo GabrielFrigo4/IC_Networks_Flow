@@ -15,6 +15,7 @@
  #include <iostream>
  #include <limits>
  #include <memory>
+ #include <queue>
  #include <vector>
 
  using Long = long long;
@@ -116,50 +117,58 @@
  		height[s] = size;
  		excess[s] = INF;
  
+ 		std::queue<Size> q;
+ 		std::vector<bool> in_queue(size, false);
+ 
  		for (Size id : adj[s])
  		{
  			Long res = edges[id].cap - edges[id].flow;
  			if (res > 0)
  			{
  				push(s, id);
+ 				Size nxt = edges[id].to;
+ 				if (nxt != s && nxt != t && !in_queue[nxt])
+ 				{
+ 					q.push(nxt);
+ 					in_queue[nxt] = true;
+ 				}
  			}
  		}
  
- 		while (true)
+ 		while (!q.empty())
  		{
- 			Size cur = MAX;
- 			for (Size i = 0; i < size; ++i)
+ 			Size cur = q.front();
+ 			q.pop();
+ 			in_queue[cur] = false;
+ 
+ 			while (excess[cur] > 0)
  			{
- 				if (i != s && i != t && excess[i] > 0)
+ 				bool pushed = false;
+ 				for (Size id : adj[cur])
  				{
- 					if (cur == MAX || height[i] > height[cur])
+ 					Size nxt = edges[id].to;
+ 					Long res = edges[id].cap - edges[id].flow;
+ 
+ 					if (res > 0 && height[cur] == height[nxt] + 1)
  					{
- 						cur = i;
+ 						push(cur, id);
+ 						pushed = true;
+ 
+ 						if (nxt != s && nxt != t && !in_queue[nxt] && excess[nxt] > 0)
+ 						{
+ 							q.push(nxt);
+ 							in_queue[nxt] = true;
+ 						}
+ 
+ 						if (excess[cur] == 0)
+ 							break;
  					}
  				}
- 			}
  
- 			if (cur == MAX)
- 				break;
- 
- 			bool pushed = false;
- 			for (Size id : adj[cur])
- 			{
- 				Size nxt = edges[id].to;
- 				Long res = edges[id].cap - edges[id].flow;
- 
- 				if (res > 0 && height[cur] == height[nxt] + 1)
+ 				if (!pushed)
  				{
- 					push(cur, id);
- 					pushed = true;
- 					if (excess[cur] == 0)
- 						break;
+ 					relabel(cur);
  				}
- 			}
- 
- 			if (!pushed)
- 			{
- 				relabel(cur);
  			}
  		}
  
