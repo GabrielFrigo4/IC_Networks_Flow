@@ -19,8 +19,8 @@
  
  using Long = long long;
  using Size = std::size_t;
- constexpr Long INF = std::numeric_limits<Long>::max() << 8;
- constexpr Size MAX = std::numeric_limits<Size>::max() << 8;
+ constexpr Long INF = std::numeric_limits<Long>::max() >> 8;
+ constexpr Size MAX = std::numeric_limits<Size>::max() >> 8;
  
  class FlowNetwork
  {
