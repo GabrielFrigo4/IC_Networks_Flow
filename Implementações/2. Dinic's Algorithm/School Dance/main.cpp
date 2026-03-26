@@ -6,30 +6,31 @@
 #include <vector>
 
 using Long = long long;
+using Size = std::size_t;
 constexpr Long INF = static_cast<Long>(1e14);
-constexpr std::size_t MAX = std::numeric_limits<std::size_t>::max();
+constexpr Size MAX = std::numeric_limits<Size>::max();
 
 class FlowNetwork
 {
 protected:
-	std::size_t size;
-	std::vector<std::vector<std::size_t>> adj;
+	Size size;
+	std::vector<std::vector<Size>> adj;
 
 public:
 	struct Edge
 	{
-		std::size_t from, to;
+		Size from, to;
 		Long cap, flow;
 	};
 	std::vector<Edge> edges;
 
-	FlowNetwork(std::size_t n) : size(n), adj(n) {}
+	FlowNetwork(Size n) : size(n), adj(n) {}
 	virtual ~FlowNetwork() = default;
 
-	virtual std::unique_ptr<FlowNetwork> make(std::size_t n) const = 0;
+	virtual std::unique_ptr<FlowNetwork> make(Size n) const = 0;
 	virtual std::unique_ptr<FlowNetwork> clone() const = 0;
 
-	virtual void add_edge(std::size_t from, std::size_t to, Long cap, Long rev_cap = 0)
+	virtual void add_edge(Size from, Size to, Long cap, Long rev_cap = 0)
 	{
 		adj[from].push_back(edges.size());
 		edges.push_back({from, to, cap, 0});
@@ -37,28 +38,28 @@ public:
 		edges.push_back({to, from, rev_cap, 0});
 	}
 
-	virtual Long compute_max_flow(std::size_t s, std::size_t t) = 0;
+	virtual Long compute_max_flow(Size s, Size t) = 0;
 };
 
 class Dinic : public FlowNetwork
 {
 private:
-	std::vector<std::size_t> level;
-	std::vector<std::size_t> ptr;
+	std::vector<Size> level;
+	std::vector<Size> ptr;
 
-	bool bfs(std::size_t s, std::size_t t)
+	bool bfs(Size s, Size t)
 	{
 		std::fill(level.begin(), level.end(), MAX);
 		level[s] = 0;
-		std::queue<std::size_t> q;
+		std::queue<Size> q;
 		q.push(s);
 		while (!q.empty())
 		{
-			std::size_t cur = q.front();
+			Size cur = q.front();
 			q.pop();
-			for (std::size_t id : adj[cur])
+			for (Size id : adj[cur])
 			{
-				std::size_t nxt = edges[id].to;
+				Size nxt = edges[id].to;
 				Long res = edges[id].cap - edges[id].flow;
 				if (level[nxt] != MAX || res <= 0)
 					continue;
@@ -69,14 +70,14 @@ private:
 		return level[t] != MAX;
 	}
 
-	Long dfs(std::size_t cur, std::size_t t, Long pushed)
+	Long dfs(Size cur, Size t, Long pushed)
 	{
 		if (pushed == 0 || cur == t)
 			return pushed;
-		for (std::size_t &cid = ptr[cur]; cid < adj[cur].size(); ++cid)
+		for (Size &cid = ptr[cur]; cid < adj[cur].size(); ++cid)
 		{
-			std::size_t id = adj[cur][cid];
-			std::size_t nxt = edges[id].to;
+			Size id = adj[cur][cid];
+			Size nxt = edges[id].to;
 			Long res = edges[id].cap - edges[id].flow;
 			if (level[cur] + 1 != level[nxt] || res <= 0)
 				continue;
@@ -91,14 +92,14 @@ private:
 	}
 
 public:
-	Dinic(std::size_t n) : FlowNetwork(n), level(n), ptr(n) {}
+	Dinic(Size n) : FlowNetwork(n), level(n), ptr(n) {}
 
-	static std::unique_ptr<FlowNetwork> create(std::size_t n)
+	static std::unique_ptr<FlowNetwork> create(Size n)
 	{
 		return std::make_unique<Dinic>(n);
 	}
 
-	std::unique_ptr<FlowNetwork> make(std::size_t n) const override
+	std::unique_ptr<FlowNetwork> make(Size n) const override
 	{
 		return std::make_unique<Dinic>(n);
 	}
@@ -108,7 +109,7 @@ public:
 		return std::make_unique<Dinic>(*this);
 	}
 
-	Long compute_max_flow(std::size_t s, std::size_t t) override
+	Long compute_max_flow(Size s, Size t) override
 	{
 		Long tot_f = 0;
 		while (bfs(s, t))
@@ -123,21 +124,21 @@ public:
 
 void task()
 {
-	std::size_t n, m, k;
+	Size n, m, k;
 	std::cin >> n >> m >> k;
 
 	auto fn = Dinic::create(n + m + 2);
-	for (std::size_t i = 1; i <= n; i++)
+	for (Size i = 1; i <= n; i++)
 	{
 		fn->add_edge(0, i, 1);
 	}
-	for (std::size_t i = n + 1; i <= n + m; i++)
+	for (Size i = n + 1; i <= n + m; i++)
 	{
 		fn->add_edge(i, n + m + 1, 1);
 	}
-	for (std::size_t i = 0; i < k; i++)
+	for (Size i = 0; i < k; i++)
 	{
-		std::size_t u, v;
+		Size u, v;
 		std::cin >> u >> v;
 		v += n;
 		fn->add_edge(u, v, 1);

@@ -6,30 +6,31 @@
 #include <vector>
 
 using Long = long long;
+using Size = std::size_t;
 constexpr Long INF = static_cast<Long>(1e14);
-constexpr std::size_t MAX = std::numeric_limits<std::size_t>::max();
+constexpr Size MAX = std::numeric_limits<Size>::max();
 
 class FlowNetwork
 {
 protected:
-	std::size_t size;
-	std::vector<std::vector<std::size_t>> adj;
+	Size size;
+	std::vector<std::vector<Size>> adj;
 
 public:
 	struct Edge
 	{
-		std::size_t from, to;
+		Size from, to;
 		Long cap, flow;
 	};
 	std::vector<Edge> edges;
 
-	FlowNetwork(std::size_t n) : size(n), adj(n) {}
+	FlowNetwork(Size n) : size(n), adj(n) {}
 	virtual ~FlowNetwork() = default;
 
-	virtual std::unique_ptr<FlowNetwork> make(std::size_t n) const = 0;
+	virtual std::unique_ptr<FlowNetwork> make(Size n) const = 0;
 	virtual std::unique_ptr<FlowNetwork> clone() const = 0;
 
-	virtual void add_edge(std::size_t from, std::size_t to, Long cap, Long rev_cap = 0)
+	virtual void add_edge(Size from, Size to, Long cap, Long rev_cap = 0)
 	{
 		adj[from].push_back(edges.size());
 		edges.push_back({from, to, cap, 0});
@@ -37,16 +38,16 @@ public:
 		edges.push_back({to, from, rev_cap, 0});
 	}
 
-	virtual Long compute_max_flow(std::size_t s, std::size_t t) = 0;
+	virtual Long compute_max_flow(Size s, Size t) = 0;
 };
 
 class EdmondsKarp : public FlowNetwork
 {
 private:
-	Long bfs(std::size_t s, std::size_t t, std::vector<std::size_t> &parent)
+	Long bfs(Size s, Size t, std::vector<Size> &parent)
 	{
 		std::fill(parent.begin(), parent.end(), MAX);
-		std::queue<std::pair<std::size_t, Long>> q;
+		std::queue<std::pair<Size, Long>> q;
 		parent[s] = s;
 		q.push({s, INF});
 
@@ -55,9 +56,9 @@ private:
 			auto [cur, cur_f] = q.front();
 			q.pop();
 
-			for (std::size_t id : adj[cur])
+			for (Size id : adj[cur])
 			{
-				std::size_t nxt = edges[id].to;
+				Size nxt = edges[id].to;
 				Long res = edges[id].cap - edges[id].flow;
 				if (parent[nxt] != MAX || res <= 0)
 					continue;
@@ -73,14 +74,14 @@ private:
 	}
 
 public:
-	EdmondsKarp(std::size_t n) : FlowNetwork(n) {}
+	EdmondsKarp(Size n) : FlowNetwork(n) {}
 
-	static std::unique_ptr<FlowNetwork> create(std::size_t n)
+	static std::unique_ptr<FlowNetwork> create(Size n)
 	{
 		return std::make_unique<EdmondsKarp>(n);
 	}
 
-	std::unique_ptr<FlowNetwork> make(std::size_t n) const override
+	std::unique_ptr<FlowNetwork> make(Size n) const override
 	{
 		return std::make_unique<EdmondsKarp>(n);
 	}
@@ -90,17 +91,17 @@ public:
 		return std::make_unique<EdmondsKarp>(*this);
 	}
 
-	Long compute_max_flow(std::size_t s, std::size_t t) override
+	Long compute_max_flow(Size s, Size t) override
 	{
 		Long tot_f = 0, new_f;
-		std::vector<std::size_t> parent(size);
+		std::vector<Size> parent(size);
 		while ((new_f = bfs(s, t, parent)) > 0)
 		{
 			tot_f += new_f;
-			std::size_t cur = t;
+			Size cur = t;
 			while (cur != s)
 			{
-				std::size_t id = parent[cur];
+				Size id = parent[cur];
 				edges[id].flow += new_f;
 				edges[id ^ 1ULL].flow -= new_f;
 				cur = edges[id].from;
@@ -112,21 +113,21 @@ public:
 
 void task()
 {
-	std::size_t n, m, k;
+	Size n, m, k;
 	std::cin >> n >> m >> k;
 
 	auto fn = EdmondsKarp::create(n + m + 2);
-	for (std::size_t i = 1; i <= n; i++)
+	for (Size i = 1; i <= n; i++)
 	{
 		fn->add_edge(0, i, 1);
 	}
-	for (std::size_t i = n + 1; i <= n + m; i++)
+	for (Size i = n + 1; i <= n + m; i++)
 	{
 		fn->add_edge(i, n + m + 1, 1);
 	}
-	for (std::size_t i = 0; i < k; i++)
+	for (Size i = 0; i < k; i++)
 	{
-		std::size_t u, v;
+		Size u, v;
 		std::cin >> u >> v;
 		v += n;
 		fn->add_edge(u, v, 1);
