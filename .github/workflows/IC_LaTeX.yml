@@ -47,10 +47,9 @@ jobs:
           # Gerar links de download dinâmicos para cada PDF encontrado
           {
             echo 'PDF_LINKS<<EOF'
-            for pdf_path in LaTeX/*.pdf; do
-              if [ -f "$pdf_path" ]; then
-                pdf_file=$(basename "$pdf_path")
-                echo "- [\`$pdf_file\`](https://github.com/${{ github.repository }}/releases/download/latest/$pdf_file)"
+            for pdf in *.pdf; do
+              if [ -f "$pdf" ]; then
+                echo "- [\`$pdf\`](https://github.com/${{ github.repository }}/releases/download/latest/$pdf)"
               fi
             done
             echo 'EOF'
@@ -71,7 +70,7 @@ jobs:
             **Conteúdo Gerado:**
             ${{ steps.meta_step.outputs.PDF_LINKS }}
           target_commitish: ${{ github.sha }}
-          files: "LaTeX/*.pdf"
+          files: "*.pdf"
           draft: false
           prerelease: false
         env:
