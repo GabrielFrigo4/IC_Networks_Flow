@@ -20,7 +20,8 @@ jobs:
       - name: Compilar todos os arquivos LaTeX
         uses: xu-cheng/latex-action@v4
         with:
-          root_file: "LaTeX/*.tex"
+          root_file: "*.tex"
+          working_directory: LaTeX
 
       - name: Deletar Release e Tag 'latest' antigas
         uses: dev-drprasad/delete-tag-and-release@v1.0
@@ -47,9 +48,10 @@ jobs:
           # Gerar links de download dinâmicos para cada PDF encontrado
           {
             echo 'PDF_LINKS<<EOF'
-            for pdf in *.pdf; do
-              if [ -f "$pdf" ]; then
-                echo "- [\`$pdf\`](https://github.com/${{ github.repository }}/releases/download/latest/$pdf)"
+            for pdf_path in LaTeX/*.pdf; do
+              if [ -f "$pdf_path" ]; then
+                pdf_file=$(basename "$pdf_path")
+                echo "- [\`$pdf_file\`](https://github.com/${{ github.repository }}/releases/download/latest/$pdf_file)"
               fi
             done
             echo 'EOF'
@@ -70,7 +72,7 @@ jobs:
             **Conteúdo Gerado:**
             ${{ steps.meta_step.outputs.PDF_LINKS }}
           target_commitish: ${{ github.sha }}
-          files: "*.pdf"
+          files: "LaTeX/*.pdf"
           draft: false
           prerelease: false
         env:
