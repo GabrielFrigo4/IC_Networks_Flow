@@ -21,3 +21,9 @@
  - [ ] **Teorema de Menger (Arestas):** Prova de que Max-Flow = Max Edge-Disjoint Paths.
  - [ ] **Teorema de Menger (Vértices):** Prova de que Min-Vertex-Cut = Max Vertex-Disjoint Paths.
  - [ ] **Dualidade de Ford-Fulkerson:** O papel central do Max-Flow Min-Cut em todas as reduções.
+
+# TO-DO LaTeX
+ - [ ] aresta -> arco
+ - [ ] grafos -> digrafo
+ - [ ] codigo no apendice
+ - [ ] G -> D (Opicional)

@@ -70,7 +70,7 @@
 
 ## 👥 Equipe
  * **Gabriel Frigo** (Autor) - Pesquisador de Iniciação Científica
- * **Cris Sato** (Orientador) - Professor(a) Doutor(a)
+ * **Cristiane Maria Sato** (Orientador) - Professor(a) Doutor(a)
 
 [edmonds_karp]: ./Implementações/1.%20Edmonds-Karp/README.md
 [dinic_algorithm]: ./Implementações/2.%20Dinic's%20Algorithm/README.md
