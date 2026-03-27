@@ -27,3 +27,4 @@
  - [ ] grafos -> digrafo
  - [ ] codigo no apendice
  - [ ] G -> D (Opicional)
+ - [ ] arrumar as citações
