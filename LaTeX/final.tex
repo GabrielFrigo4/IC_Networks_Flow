@@ -428,7 +428,7 @@ Desta forma, a infraestrutura estabelecida nesta primeira fase oferece total seg
 \newpage
 \appendix
 
-\section{Implementação da Interface Base}
+\section{Implementação da Interface Base ``Flow-Network''}
 \label{ap:flownetwork}
 
 \begin{lstlisting}[caption={Implementação em C++ da interface base \lstinline{FlowNetwork} para a modelagem abstrata de redes de fluxo.}, label={lst:flownetwork}]
@@ -457,26 +457,27 @@ protected:
 	std::vector<Edge> edges;
 	std::vector<std::vector<Size>> adj;
 
-	[[nodiscard]] Long get_residual_capacity(Size edge_id) const
+	[[nodiscard]] Long get_residual_capacity(const Size edge_id) const
 	{
 		return edges[edge_id].capacity - edges[edge_id].flow;
 	}
 
-	void push_flow(Size edge_id, Long flow_amount)
+	void push_flow(const Size edge_id, const Long flow_amount)
 	{
 		edges[edge_id].flow += flow_amount;
 		edges[edge_id ^ 1ULL].flow -= flow_amount;
 	}
 
 public:
-	explicit FlowNetwork(Size n) : size(n), adj(n) {}
+	explicit FlowNetwork(const Size n) : size(n), adj(n) {}
 	virtual ~FlowNetwork() = default;
 
-	virtual std::unique_ptr<FlowNetwork> make(Size n) const = 0;
+	virtual std::unique_ptr<FlowNetwork> make(const Size n) const = 0;
 	virtual std::unique_ptr<FlowNetwork> clone() const = 0;
 
 	virtual void add_edge(
-	    Size from, Size to, Long capacity, Long reverse_capacity = 0
+	    const Size from, const Size to, const Long capacity,
+	    const Long reverse_capacity = 0
 	)
 	{
 		adj[from].push_back(edges.size());
@@ -485,23 +486,33 @@ public:
 		edges.push_back({to, from, reverse_capacity, 0});
 	}
 
-	virtual Long compute_max_flow(Size source, Size sink) = 0;
+	virtual Long compute_max_flow(const Size source, const Size sink) = 0;
+
+	[[nodiscard]] Size get_size() const
+	{
+		return size;
+	}
 
 	[[nodiscard]] const std::vector<Edge> &get_edges() const
 	{
 		return edges;
 	}
+
+	[[nodiscard]] const std::vector<std::vector<Size>> &get_adj() const
+	{
+		return adj;
+	}
 };
 \end{lstlisting}
 
-\section{Implementação da Classe EdmondsKarp}
+\section{Implementação da Classe ``Edmonds-Karp''}
 \label{ap:edmonds_karp}
 
 \begin{lstlisting}[caption={Implementação em C++ da classe \lstinline{EdmondsKarp}, baseada na seleção iterativa de caminhos mais curtos via Busca em Largura (BFS).}, label={lst:edmonds_karp}]
 class EdmondsKarp : public FlowNetwork
 {
 private:
-	Long bfs(Size source, Size sink, std::vector<Size> &parent_edge)
+	Long bfs(const Size source, const Size sink, std::vector<Size> &parent_edge)
 	{
 		std::fill(parent_edge.begin(), parent_edge.end(), MAX);
 		std::queue<std::pair<Size, Long>> queue;
@@ -511,19 +522,21 @@ private:
 
 		while (!queue.empty())
 		{
-			auto [current_node, current_flow] = queue.front();
+			const auto [current_node, current_flow] = queue.front();
 			queue.pop();
 
-			for (Size edge_id : adj[current_node])
+			for (const Size edge_id : adj[current_node])
 			{
-				Size next_node = edges[edge_id].to;
-				Long residual_capacity = get_residual_capacity(edge_id);
+				const Size next_node = edges[edge_id].to;
+				const Long residual_capacity = get_residual_capacity(edge_id);
 
 				if (parent_edge[next_node] != MAX || residual_capacity <= 0)
 					continue;
 
 				parent_edge[next_node] = edge_id;
-				Long pushed_flow = std::min(current_flow, residual_capacity);
+				const Long pushed_flow = std::min(
+				    current_flow, residual_capacity
+				);
 
 				if (next_node == sink)
 					return pushed_flow;
@@ -535,28 +548,28 @@ private:
 	}
 
 	void update_path_flow(
-	    Size source, Size sink, const std::vector<Size> &parent_edge,
-	    Long new_flow
+	    const Size source, const Size sink,
+	    const std::vector<Size> &parent_edge, const Long new_flow
 	)
 	{
 		Size current_node = sink;
 		while (current_node != source)
 		{
-			Size edge_id = parent_edge[current_node];
+			const Size edge_id = parent_edge[current_node];
 			push_flow(edge_id, new_flow);
 			current_node = edges[edge_id].from;
 		}
 	}
 
 public:
-	explicit EdmondsKarp(Size n) : FlowNetwork(n) {}
+	explicit EdmondsKarp(const Size n) : FlowNetwork(n) {}
 
-	static std::unique_ptr<FlowNetwork> create(Size n)
+	static std::unique_ptr<FlowNetwork> create(const Size n)
 	{
 		return std::make_unique<EdmondsKarp>(n);
 	}
 
-	std::unique_ptr<FlowNetwork> make(Size n) const override
+	std::unique_ptr<FlowNetwork> make(const Size n) const override
 	{
 		return std::make_unique<EdmondsKarp>(n);
 	}
@@ -566,7 +579,7 @@ public:
 		return std::make_unique<EdmondsKarp>(*this);
 	}
 
-	Long compute_max_flow(Size source, Size sink) override
+	Long compute_max_flow(const Size source, const Size sink) override
 	{
 		Long total_flow = 0;
 		Long new_flow = 0;
@@ -583,7 +596,7 @@ public:
 };
 \end{lstlisting}
 
-\section{Implementação da Classe Dinic}
+\section{Implementação da Classe ``Dinic''}
 \label{ap:dinic}
 
 \begin{lstlisting}[caption={Implementação em C++ da classe \lstinline{Dinic}, estruturada com Digrafo de Níveis e otimização de ponteiros mortos no cálculo do fluxo bloqueador.}, label={lst:dinic}]
@@ -593,7 +606,7 @@ private:
 	std::vector<Size> level;
 	std::vector<Size> next_edge_ptr;
 
-	bool bfs(Size source, Size sink)
+	bool bfs(const Size source, const Size sink)
 	{
 		std::fill(level.begin(), level.end(), MAX);
 		std::queue<Size> queue;
@@ -603,13 +616,13 @@ private:
 
 		while (!queue.empty())
 		{
-			Size current_node = queue.front();
+			const Size current_node = queue.front();
 			queue.pop();
 
-			for (Size edge_id : adj[current_node])
+			for (const Size edge_id : adj[current_node])
 			{
-				Size next_node = edges[edge_id].to;
-				Long residual_capacity = get_residual_capacity(edge_id);
+				const Size next_node = edges[edge_id].to;
+				const Long residual_capacity = get_residual_capacity(edge_id);
 
 				if (level[next_node] != MAX || residual_capacity <= 0)
 					continue;
@@ -621,7 +634,7 @@ private:
 		return level[sink] != MAX;
 	}
 
-	Long dfs(Size current_node, Size sink, Long flow_pushed)
+	Long dfs(const Size current_node, const Size sink, const Long flow_pushed)
 	{
 		if (flow_pushed == 0 || current_node == sink)
 			return flow_pushed;
@@ -630,16 +643,16 @@ private:
 		     ptr < adj[current_node].size();
 		     ++ptr)
 		{
-			Size edge_id = adj[current_node][ptr];
-			Size next_node = edges[edge_id].to;
-			Long residual_capacity = get_residual_capacity(edge_id);
+			const Size edge_id = adj[current_node][ptr];
+			const Size next_node = edges[edge_id].to;
+			const Long residual_capacity = get_residual_capacity(edge_id);
 
 			if (level[current_node] + 1 != level[next_node] ||
 			    residual_capacity <= 0)
 				continue;
 
-			Long bottleneck = std::min(flow_pushed, residual_capacity);
-			Long flow_transmitted = dfs(next_node, sink, bottleneck);
+			const Long bottleneck = std::min(flow_pushed, residual_capacity);
+			const Long flow_transmitted = dfs(next_node, sink, bottleneck);
 
 			if (flow_transmitted == 0)
 				continue;
@@ -651,14 +664,14 @@ private:
 	}
 
 public:
-	explicit Dinic(Size n) : FlowNetwork(n), level(n), next_edge_ptr(n) {}
+	explicit Dinic(const Size n) : FlowNetwork(n), level(n), next_edge_ptr(n) {}
 
-	static std::unique_ptr<FlowNetwork> create(Size n)
+	static std::unique_ptr<FlowNetwork> create(const Size n)
 	{
 		return std::make_unique<Dinic>(n);
 	}
 
-	std::unique_ptr<FlowNetwork> make(Size n) const override
+	std::unique_ptr<FlowNetwork> make(const Size n) const override
 	{
 		return std::make_unique<Dinic>(n);
 	}
@@ -668,13 +681,13 @@ public:
 		return std::make_unique<Dinic>(*this);
 	}
 
-	Long compute_max_flow(Size source, Size sink) override
+	Long compute_max_flow(const Size source, const Size sink) override
 	{
 		Long total_flow = 0;
 		while (bfs(source, sink))
 		{
 			std::fill(next_edge_ptr.begin(), next_edge_ptr.end(), 0);
-			while (Long flow_pushed = dfs(source, sink, INF))
+			while (const Long flow_pushed = dfs(source, sink, INF))
 			{
 				total_flow += flow_pushed;
 			}
@@ -684,7 +697,7 @@ public:
 };
 \end{lstlisting}
 
-\section{Implementação da Classe PushRelabel}
+\section{Implementação da Classe ``Push-Relabel''}
 \label{ap:push_relabel}
 
 \begin{lstlisting}[caption={Implementação em C++ da classe \lstinline{PushRelabel}, baseada em pré-fluxos topológicos e política de processamento em fila (FIFO).}, label={lst:push_relabel}]
@@ -694,11 +707,13 @@ private:
 	std::vector<Size> height;
 	std::vector<Long> excess;
 
-	void push_preflow(Size current_node, Size edge_id)
+	void push_preflow(const Size current_node, const Size edge_id)
 	{
-		Size next_node = edges[edge_id].to;
-		Long residual_capacity = get_residual_capacity(edge_id);
-		Long flow_to_push = std::min(excess[current_node], residual_capacity);
+		const Size next_node = edges[edge_id].to;
+		const Long residual_capacity = get_residual_capacity(edge_id);
+		const Long flow_to_push = std::min(
+		    excess[current_node], residual_capacity
+		);
 
 		if (flow_to_push == 0)
 			return;
@@ -708,16 +723,18 @@ private:
 		excess[next_node] += flow_to_push;
 	}
 
-	void relabel_node(Size current_node)
+	void relabel_node(const Size current_node)
 	{
 		Size min_height = MAX;
-		for (Size edge_id : adj[current_node])
+		for (const Size edge_id : adj[current_node])
 		{
-			if (get_residual_capacity(edge_id) > 0)
+			if (get_residual_capacity(edge_id) <= 0)
 			{
-				min_height = std::min(min_height, height[edges[edge_id].to]);
+				continue;
 			}
+			min_height = std::min(min_height, height[edges[edge_id].to]);
 		}
+
 		if (min_height != MAX)
 		{
 			height[current_node] = min_height + 1;
@@ -725,7 +742,7 @@ private:
 	}
 
 	void initialize_preflow(
-	    Size source, Size sink, std::queue<Size> &active_queue,
+	    const Size source, const Size sink, std::queue<Size> &active_queue,
 	    std::vector<bool> &in_queue
 	)
 	{
@@ -735,31 +752,35 @@ private:
 		height[source] = size;
 		excess[source] = INF;
 
-		for (Size edge_id : adj[source])
+		for (const Size edge_id : adj[source])
 		{
-			if (get_residual_capacity(edge_id) > 0)
+			if (get_residual_capacity(edge_id) <= 0)
 			{
-				push_preflow(source, edge_id);
-				Size next_node = edges[edge_id].to;
-				if (next_node != source && next_node != sink &&
-				    !in_queue[next_node])
-				{
-					active_queue.push(next_node);
-					in_queue[next_node] = true;
-				}
+				continue;
 			}
+
+			push_preflow(source, edge_id);
+			const Size next_node = edges[edge_id].to;
+
+			if (next_node == source || next_node == sink || in_queue[next_node])
+			{
+				continue;
+			}
+
+			active_queue.push(next_node);
+			in_queue[next_node] = true;
 		}
 	}
 
 public:
-	explicit PushRelabel(Size n) : FlowNetwork(n), height(n), excess(n) {}
+	explicit PushRelabel(const Size n) : FlowNetwork(n), height(n), excess(n) {}
 
-	static std::unique_ptr<FlowNetwork> create(Size n)
+	static std::unique_ptr<FlowNetwork> create(const Size n)
 	{
 		return std::make_unique<PushRelabel>(n);
 	}
 
-	std::unique_ptr<FlowNetwork> make(Size n) const override
+	std::unique_ptr<FlowNetwork> make(const Size n) const override
 	{
 		return std::make_unique<PushRelabel>(n);
 	}
@@ -769,7 +790,7 @@ public:
 		return std::make_unique<PushRelabel>(*this);
 	}
 
-	Long compute_max_flow(Size source, Size sink) override
+	Long compute_max_flow(const Size source, const Size sink) override
 	{
 		std::queue<Size> active_queue;
 		std::vector<bool> in_queue(size, false);
@@ -778,34 +799,38 @@ public:
 
 		while (!active_queue.empty())
 		{
-			Size current_node = active_queue.front();
+			const Size current_node = active_queue.front();
 			active_queue.pop();
 			in_queue[current_node] = false;
 
 			while (excess[current_node] > 0)
 			{
 				bool has_pushed = false;
-				for (Size edge_id : adj[current_node])
+				for (const Size edge_id : adj[current_node])
 				{
-					Size next_node = edges[edge_id].to;
-					Long residual_capacity = get_residual_capacity(edge_id);
+					const Size next_node = edges[edge_id].to;
+					const Long residual_capacity = get_residual_capacity(
+					    edge_id
+					);
 
-					if (residual_capacity > 0 &&
-					    height[current_node] == height[next_node] + 1)
+					if (residual_capacity <= 0 ||
+					    height[current_node] != height[next_node] + 1)
 					{
-						push_preflow(current_node, edge_id);
-						has_pushed = true;
-
-						if (next_node != source && next_node != sink &&
-						    !in_queue[next_node] && excess[next_node] > 0)
-						{
-							active_queue.push(next_node);
-							in_queue[next_node] = true;
-						}
-
-						if (excess[current_node] == 0)
-							break;
+						continue;
 					}
+
+					push_preflow(current_node, edge_id);
+					has_pushed = true;
+
+					if (next_node != source && next_node != sink &&
+					    !in_queue[next_node] && excess[next_node] > 0)
+					{
+						active_queue.push(next_node);
+						in_queue[next_node] = true;
+					}
+
+					if (excess[current_node] == 0)
+						break;
 				}
 
 				if (!has_pushed)
@@ -820,7 +845,7 @@ public:
 };
 \end{lstlisting}
 
-\section{Implementação da Classe PushRelabelImproved}
+\section{Implementação da Classe ``Push-Relabel Improved''}
 \label{ap:push_relabel_improved}
 
 \begin{lstlisting}[caption={Implementação em C++ da classe \lstinline{PushRelabelImproved}, otimizada empiricamente com a Heurística de Lacuna (\textit{Gap Heuristic}).}, label={lst:push_relabel_improved}]
@@ -834,24 +859,35 @@ private:
 	std::vector<std::vector<Size>> active_buckets;
 	Size highest_active;
 
-	void enqueue_active_node(Size node, Size source, Size sink)
+	void enqueue_active_node(
+	    const Size node, const Size source, const Size sink
+	)
 	{
-		if (node != source && node != sink && excess[node] > 0)
+		if (node == source || node == sink || excess[node] <= 0)
 		{
-			active_buckets[height[node]].push_back(node);
-			highest_active = std::max(highest_active, height[node]);
+			return;
 		}
+
+		active_buckets[height[node]].push_back(node);
+		highest_active = std::max(highest_active, height[node]);
 	}
 
-	void push_preflow(Size current_node, Size edge_id, Size source, Size sink)
+	void push_preflow(
+	    const Size current_node, const Size edge_id, const Size source,
+	    const Size sink
+	)
 	{
-		Size next_node = edges[edge_id].to;
-		Long residual_capacity = get_residual_capacity(edge_id);
+		const Size next_node = edges[edge_id].to;
+		const Long residual_capacity = get_residual_capacity(edge_id);
 
 		if (residual_capacity == 0 || height[current_node] <= height[next_node])
+		{
 			return;
+		}
 
-		Long flow_to_push = std::min(excess[current_node], residual_capacity);
+		const Long flow_to_push = std::min(
+		    excess[current_node], residual_capacity
+		);
 		push_flow(edge_id, flow_to_push);
 		excess[current_node] -= flow_to_push;
 		excess[next_node] += flow_to_push;
@@ -862,78 +898,89 @@ private:
 		}
 	}
 
-	void apply_gap_heuristic(Size gap_height, Size source, Size sink)
+	void apply_gap_heuristic(
+	    const Size gap_height, const Size source, const Size sink
+	)
 	{
 		for (Size i = 0; i < size; ++i)
 		{
-			if (i != source && height[i] > gap_height && height[i] < size)
+			if (i == source || height[i] <= gap_height || height[i] >= size)
 			{
-				height_count[height[i]]--;
-				height[i] = std::max(height[i], size + 1);
-				height_count[height[i]]++;
-				enqueue_active_node(i, source, sink);
+				continue;
 			}
+
+			height_count[height[i]]--;
+			height[i] = std::max(height[i], size + 1);
+			height_count[height[i]]++;
+			enqueue_active_node(i, source, sink);
 		}
 	}
 
-	void relabel_node(Size current_node, Size source, Size sink)
+	void relabel_node(
+	    const Size current_node, const Size source, const Size sink
+	)
 	{
 		Size min_height = MAX;
-		for (Size edge_id : adj[current_node])
+		for (const Size edge_id : adj[current_node])
 		{
-			if (get_residual_capacity(edge_id) > 0)
+			if (get_residual_capacity(edge_id) <= 0)
 			{
-				min_height = std::min(min_height, height[edges[edge_id].to]);
+				continue;
 			}
+
+			min_height = std::min(min_height, height[edges[edge_id].to]);
 		}
 
-		if (min_height != MAX)
+		if (min_height == MAX)
 		{
-			Size old_height = height[current_node];
-			height_count[old_height]--;
+			return;
+		}
 
-			height[current_node] = min_height + 1;
-			height_count[height[current_node]]++;
-			enqueue_active_node(current_node, source, sink);
+		const Size old_height = height[current_node];
+		height_count[old_height]--;
 
-			if (height_count[old_height] == 0 && old_height < size)
-			{
-				apply_gap_heuristic(old_height, source, sink);
-			}
+		height[current_node] = min_height + 1;
+		height_count[height[current_node]]++;
+		enqueue_active_node(current_node, source, sink);
+
+		if (height_count[old_height] == 0 && old_height < size)
+		{
+			apply_gap_heuristic(old_height, source, sink);
 		}
 	}
 
-	void discharge_node(Size current_node, Size source, Size sink)
+	void discharge_node(
+	    const Size current_node, const Size source, const Size sink
+	)
 	{
 		while (excess[current_node] > 0)
 		{
-			if (next_edge_ptr[current_node] < adj[current_node].size())
-			{
-				Size edge_id = adj[current_node][next_edge_ptr[current_node]];
-				Size next_node = edges[edge_id].to;
-				Long residual_capacity = get_residual_capacity(edge_id);
-
-				if (residual_capacity > 0 &&
-				    height[current_node] == height[next_node] + 1)
-				{
-					push_preflow(current_node, edge_id, source, sink);
-				}
-				else
-				{
-					next_edge_ptr[current_node]++;
-				}
-			}
-			else
+			if (next_edge_ptr[current_node] >= adj[current_node].size())
 			{
 				relabel_node(current_node, source, sink);
 				next_edge_ptr[current_node] = 0;
+				continue;
+			}
+
+			const Size edge_id = adj[current_node][next_edge_ptr[current_node]];
+			const Size next_node = edges[edge_id].to;
+			const Long residual_capacity = get_residual_capacity(edge_id);
+
+			if (residual_capacity > 0 &&
+			    height[current_node] == height[next_node] + 1)
+			{
+				push_preflow(current_node, edge_id, source, sink);
+			}
+			else
+			{
+				next_edge_ptr[current_node]++;
 			}
 		}
 	}
 
-	void initialize_preflow(Size source, Size sink)
+	void initialize_preflow(const Size source, const Size sink)
 	{
-		Size max_height_limit = size * 2 + 1;
+		const Size max_height_limit = size * 2 + 1;
 
 		height.assign(size, 0);
 		excess.assign(size, 0);
@@ -947,21 +994,21 @@ private:
 		height_count[0] = size - 1;
 
 		excess[source] = INF;
-		for (Size edge_id : adj[source])
+		for (const Size edge_id : adj[source])
 		{
 			push_preflow(source, edge_id, source, sink);
 		}
 	}
 
 public:
-	explicit PushRelabelImproved(Size n) : FlowNetwork(n) {}
+	explicit PushRelabelImproved(const Size n) : FlowNetwork(n) {}
 
-	static std::unique_ptr<FlowNetwork> create(Size n)
+	static std::unique_ptr<FlowNetwork> create(const Size n)
 	{
 		return std::make_unique<PushRelabelImproved>(n);
 	}
 
-	std::unique_ptr<FlowNetwork> make(Size n) const override
+	std::unique_ptr<FlowNetwork> make(const Size n) const override
 	{
 		return std::make_unique<PushRelabelImproved>(n);
 	}
@@ -971,7 +1018,7 @@ public:
 		return std::make_unique<PushRelabelImproved>(*this);
 	}
 
-	Long compute_max_flow(Size source, Size sink) override
+	Long compute_max_flow(const Size source, const Size sink) override
 	{
 		initialize_preflow(source, sink);
 
@@ -985,18 +1032,43 @@ public:
 				continue;
 			}
 
-			Size current_node = active_buckets[highest_active].back();
+			const Size current_node = active_buckets[highest_active].back();
 			active_buckets[highest_active].pop_back();
 
-			if (height[current_node] == highest_active)
+			if (height[current_node] != highest_active)
 			{
-				discharge_node(current_node, source, sink);
+				continue;
 			}
+
+			discharge_node(current_node, source, sink);
 		}
 
 		return excess[sink];
 	}
 };
 \end{lstlisting}
+
+\section{Acesso ao Código-Fonte e Repositório GitHub}
+\label{ap:github}
+
+Com o objetivo de garantir a transparência, a reprodutibilidade dos experimentos e facilitar a consulta das implementações discutidas neste relatório, todo o material de desenvolvimento foi organizado em um repositório público na plataforma GitHub.
+
+O repositório \textbf{IC\_Networks\_Flow} contém:
+\begin{itemize}
+    \item A biblioteca base em C++ com a interface polimórfica \lstinline{FlowNetwork};
+    \item Implementações completas dos algoritmos de Edmonds-Karp, Dinic e Push-Relabel (incluindo a \textit{Gap Heuristic});
+    \item Scripts para automação de testes e leitura de instâncias no padrão DIMACS;
+    \item Documentação técnica sobre a estrutura das classes e instruções para compilação.
+\end{itemize}
+
+O código-fonte completo pode ser consultado, clonado e executado através do endereço:
+
+\vspace{0.4cm}
+\begin{center}
+    \fbox{\url{https://github.com/GabrielFrigo4/IC_Networks_Flow}}
+\end{center}
+\vspace{0.4cm}
+
+O versionamento do código segue as boas práticas de desenvolvimento de \textit{software}, permitindo o acompanhamento histórico das otimizações realizadas durante cada etapa deste projeto de Iniciação Científica.
 
 \end{document}

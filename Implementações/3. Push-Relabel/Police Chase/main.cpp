@@ -213,18 +213,51 @@ public:
 	}
 };
 
-Long compute_global_min_cut(
+std::vector<bool> get_reachable_nodes(
     const std::unique_ptr<FlowNetwork> &fn, const Size num_nodes
 )
 {
-	Long global_min_cut = INF;
-	for (Size current_sink = 1; current_sink < num_nodes; current_sink++)
+	std::vector<bool> reachable(num_nodes, false);
+	std::queue<Size> q;
+
+	q.push(0);
+	reachable[0] = true;
+
+	while (!q.empty())
 	{
-		const auto fn_clone = fn->clone();
-		const Long current_flow = fn_clone->compute_max_flow(0, current_sink);
-		global_min_cut = std::min(global_min_cut, current_flow);
+		const Size u = q.front();
+		q.pop();
+
+		for (const Size edge_id : fn->get_adj()[u])
+		{
+			const auto &edge = fn->get_edges()[edge_id];
+
+			if (edge.capacity - edge.flow <= 0 || reachable[edge.to])
+			{
+				continue;
+			}
+
+			reachable[edge.to] = true;
+			q.push(edge.to);
+		}
 	}
-	return global_min_cut;
+
+	return reachable;
+}
+
+void print_min_cut_edges(
+    const std::unique_ptr<FlowNetwork> &fn, const std::vector<bool> &reachable
+)
+{
+	for (const auto &edge : fn->get_edges())
+	{
+		if (!reachable[edge.from] || reachable[edge.to] || edge.capacity <= 0)
+		{
+			continue;
+		}
+
+		std::cout << edge.from + 1 << " " << edge.to + 1 << std::endl;
+	}
 }
 
 void task()
@@ -233,40 +266,19 @@ void task()
 	if (!(std::cin >> num_nodes >> num_edges))
 		return;
 
-	std::vector<std::vector<Long>> capacity_matrix(
-	    num_nodes, std::vector<Long>(num_nodes, 0)
-	);
-
+	const auto fn = PushRelabel::create(num_nodes);
 	for (Size k = 0; k < num_edges; k++)
 	{
-		Size from_node, to_node;
-		Long capacity;
-		std::cin >> from_node >> to_node >> capacity;
-
-		from_node--;
-		to_node--;
-
-		capacity_matrix[from_node][to_node] = capacity;
-		capacity_matrix[to_node][from_node] = capacity;
+		Size u, v;
+		std::cin >> u >> v;
+		fn->add_edge(u - 1, v - 1, 1, 1);
 	}
 
-	const auto fn = PushRelabel::create(num_nodes);
+	const Long max_flow = fn->compute_max_flow(0, num_nodes - 1);
+	std::cout << max_flow << std::endl;
 
-	for (Size i = 0; i < num_nodes; i++)
-	{
-		for (Size j = i + 1; j < num_nodes; j++)
-		{
-			if (capacity_matrix[i][j] <= 0)
-			{
-				continue;
-			}
-
-			fn->add_edge(i, j, capacity_matrix[i][j], capacity_matrix[i][j]);
-		}
-	}
-
-	const Long global_min_cut = compute_global_min_cut(fn, num_nodes);
-	std::cout << global_min_cut << std::endl;
+	const std::vector<bool> reachable = get_reachable_nodes(fn, num_nodes);
+	print_min_cut_edges(fn, reachable);
 }
 
 int main(void)
@@ -274,13 +286,6 @@ int main(void)
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(nullptr);
 
-	Long num_test_cases;
-	if (!(std::cin >> num_test_cases))
-		return -1;
-
-	while (num_test_cases--)
-	{
-		task();
-	}
+	task();
 	return 0;
 }

@@ -166,57 +166,65 @@ public:
 	}
 };
 
-void print_matches(
-    const std::unique_ptr<FlowNetwork> &fn, const Size num_boys,
-    const Size num_girls
+void print_disjoint_paths(
+    const std::unique_ptr<FlowNetwork> &fn, const Size num_nodes,
+    const Long max_flow
 )
 {
-	for (const auto &edge : fn->get_edges())
-	{
-		const Size num_total = num_boys + num_girls;
-		const bool from_boy = (edge.from >= 1 && edge.from <= num_boys);
-		const bool to_girl = (edge.to > num_boys && edge.to <= num_total);
+	const auto &edges = fn->get_edges();
+	const auto &adj = fn->get_adj();
+	std::vector<bool> used_edge(edges.size(), false);
 
-		if (!from_boy || !to_girl || edge.flow != 1)
+	for (Long i = 0; i < max_flow; i++)
+	{
+		std::vector<Size> path;
+		Size curr = 0;
+		path.push_back(curr);
+
+		while (curr != num_nodes - 1)
 		{
-			continue;
+			for (const Size edge_id : adj[curr])
+			{
+				if (edge_id % 2 != 0 || edges[edge_id].flow == 0 ||
+				    used_edge[edge_id])
+				{
+					continue;
+				}
+
+				used_edge[edge_id] = true;
+				curr = edges[edge_id].to;
+				path.push_back(curr);
+				break;
+			}
 		}
 
-		std::cout << edge.from << " " << edge.to - num_boys << std::endl;
+		std::cout << path.size() << std::endl;
+		for (Size j = 0; j < path.size(); j++)
+		{
+			std::cout << path[j] + 1 << (j + 1 == path.size() ? "" : " ");
+		}
+		std::cout << std::endl;
 	}
 }
 
 void task()
 {
-	Size num_boys, num_girls, num_potential_pairs;
-	if (!(std::cin >> num_boys >> num_girls >> num_potential_pairs))
+	Size num_nodes, num_edges;
+	if (!(std::cin >> num_nodes >> num_edges))
 		return;
 
-	const Size total_nodes = num_boys + num_girls + 2;
-	const Size source = 0;
-	const Size sink = total_nodes - 1;
-
-	const auto fn = Dinic::create(total_nodes);
-
-	for (Size i = 1; i <= num_boys; i++)
+	const auto fn = Dinic::create(num_nodes);
+	for (Size k = 0; k < num_edges; k++)
 	{
-		fn->add_edge(source, i, 1);
+		Size from_node, to_node;
+		std::cin >> from_node >> to_node;
+		fn->add_edge(from_node - 1, to_node - 1, 1);
 	}
 
-	for (Size i = 1; i <= num_girls; i++)
-	{
-		fn->add_edge(num_boys + i, sink, 1);
-	}
+	const Long max_flow = fn->compute_max_flow(0, num_nodes - 1);
+	std::cout << max_flow << std::endl;
 
-	for (Size i = 0; i < num_potential_pairs; i++)
-	{
-		Size boy, girl;
-		std::cin >> boy >> girl;
-		fn->add_edge(boy, num_boys + girl, 1);
-	}
-
-	std::cout << fn->compute_max_flow(source, sink) << std::endl;
-	print_matches(fn, num_boys, num_girls);
+	print_disjoint_paths(fn, num_nodes, max_flow);
 }
 
 int main(void)

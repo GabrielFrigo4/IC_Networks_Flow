@@ -68,7 +68,7 @@ jobs:
 
             **Commit:** ${{ github.sha }}
             **Data:** ${{ steps.meta_step.outputs.DATA_FORMATADA }}
-            
+
             **Conteúdo Gerado:**
             ${{ steps.meta_step.outputs.PDF_LINKS }}
           target_commitish: ${{ github.sha }}
