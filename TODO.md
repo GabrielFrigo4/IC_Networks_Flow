@@ -23,8 +23,9 @@
  - [ ] **Dualidade de Ford-Fulkerson:** O papel central do Max-Flow Min-Cut em todas as reduções.
 
 # TO-DO LaTeX
- - [ ] aresta -> arco
- - [ ] grafos -> digrafo
- - [ ] codigo no apendice
- - [ ] G -> D (Opicional)
- - [ ] arrumar as citações
+ - [X] aresta -> arco
+ - [X] grafos -> digrafo
+ - [X] codigo no apendice
+ - [ ] G -> D (Gemini)
+ - [ ] arrumar as citações (Gemini)
+ - [ ] Improved?
