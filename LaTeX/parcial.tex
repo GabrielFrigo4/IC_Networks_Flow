@@ -247,7 +247,7 @@ Para que a arco $(u,v)$ retorne à rede residual em uma iteração futura, o alg
 
 Conclui-se analiticamente que, entre duas saturações consecutivas de uma mesma conexão, a distância do vértice de origem em relação à fonte sofre um incremento de, no mínimo, duas unidades. Uma vez que o limite superior para a distância de um caminho simples em um digrafo é $|V| - 1$, cada arco da rede pode ser saturada no máximo $\mathcal{O}(|V|)$ vezes ao longo de toda a execução. 
 
-Existindo $\mathcal{O}(|E|)$ arcos na malha geométrica, o limite superior de aumentos globais é estritamente circunscrito a $\mathcal{O}(|V| \cdot |E|)$. Multiplicando este fator de repetição pelo custo computacional intrínseco de $\mathcal{O}(|E|)$ operações de uma busca BFS, o tempo de execução de pior caso é cravado rigorosamente em $\mathcal{O}(|V| \cdot |E|^2)$~\cite{korte2018combinatorial}. A materialização desta heurística, utilizando a herança e o encapsulamento orientado a objetos da interface principal, encontra-se estruturada no Código~\ref{lst:edmondskarp} (disponível no Apêndice~\ref{ap:edmondskarp}).
+Existindo $\mathcal{O}(|E|)$ arcos na malha geométrica, o limite superior de aumentos globais é estritamente circunscrito a $\mathcal{O}(|V| \cdot |E|)$. Multiplicando este fator de repetição pelo custo computacional intrínseco de $\mathcal{O}(|E|)$ operações de uma busca BFS, o tempo de execução de pior caso é cravado rigorosamente em $\mathcal{O}(|V| \cdot |E|^2)$~\cite{korte2018combinatorial}. A materialização desta heurística, utilizando a herança e o encapsulamento orientado a objetos da interface principal, encontra-se estruturada no Código~\ref{lst:edmonds_karp} (disponível no Apêndice~\ref{ap:edmonds_karp}).
 
 \subsubsection{O Algoritmo de Dinic}
 
@@ -297,7 +297,7 @@ Durante o ciclo de resolução principal, o algoritmo inspeciona vértices ativo
     \item \textbf{Operação de Rerrotular (\textit{Relabel}):} Quando um vértice ativo $u$ encontra-se topologicamente "preso" — isto é, possui excesso de recursos, mas nenhuma de suas conexões com capacidade residual aponta para um vizinho em um nível estritamente inferior —, a operação de \textit{Push} torna-se inviável. Para romper este impasse estrutural, o algoritmo atualiza a altura do vértice para $h(u) = 1 + \min \{h(v) \mid c_f(u,v) > 0\}$. Esta elevação pontual garante a recriação de um declive geométrico válido, permitindo que o excesso retome sua movimentação iterativa~\cite{korte2018combinatorial}.
 \end{itemize}
 
-A eficiência global do algoritmo é intrinsecamente dependente da política de seleção: qual vértice ativo deve ser processado primeiro? A implementação canônica emprega uma estrutura de dados de fila (\textit{Queue}) para gerenciar estes vértices sob uma política \textit{First-In, First-Out} (FIFO). Demonstra-se matematicamente que a ordem de processamento FIFO amortece severamente o número de empurrões não-saturantes necessários para a convergência. Graças a esta amortização estrutural, o limite assintótico de tempo de pior caso para o algoritmo Push-Relabel padrão é cravado analiticamente em $\mathcal{O}(|V|^3)$~\cite{goldberg1988new}. A materialização em C++ deste maquinário de estados, herdando a arquitetura segura da interface polimórfica, encontra-se detalhada no Código~\ref{lst:pushrelabel} (disponível no Apêndice~\ref{ap:pushrelabel}).
+A eficiência global do algoritmo é intrinsecamente dependente da política de seleção: qual vértice ativo deve ser processado primeiro? A implementação canônica emprega uma estrutura de dados de fila (\textit{Queue}) para gerenciar estes vértices sob uma política \textit{First-In, First-Out} (FIFO). Demonstra-se matematicamente que a ordem de processamento FIFO amortece severamente o número de empurrões não-saturantes necessários para a convergência. Graças a esta amortização estrutural, o limite assintótico de tempo de pior caso para o algoritmo Push-Relabel padrão é cravado analiticamente em $\mathcal{O}(|V|^3)$~\cite{goldberg1988new}. A materialização em C++ deste maquinário de estados, herdando a arquitetura segura da interface polimórfica, encontra-se detalhada no Código~\ref{lst:push_relabel} (disponível no Apêndice~\ref{ap:push_relabel}).
 
 \subsubsection{Otimização Empírica: A Heurística de Lacuna (\textit{Gap Heuristic})}
 
@@ -311,7 +311,7 @@ A genialidade matemática desta heurística reside na observação das quebras d
 
 Ao invés de aguardar que o algoritmo descubra este isolamento gradativamente, a heurística age de forma proativa e agressiva: ela intervém na rede e eleva instantaneamente a altura de todos os vértices acima da lacuna $k$ para o patamar de isolamento ($|V| + 1$)~\cite{korte2018combinatorial}. Esta reclassificação em massa poda milhares de operações de \textit{relabel} inúteis em uma única iteração.
 
-Para maximizar este ganho analítico, a implementação C++ desenvolvida neste projeto associa a Heurística de Lacuna à regra de seleção do vértice ativo mais alto (\textit{Highest-Label Selection}). Priorizando o escoamento a partir dos cumes topológicos, o algoritmo garante que o excesso seja empurrado agressivamente para os níveis inferiores, acelerando o encontro com o sumidouro ou a formação precoce de lacunas. Esta sinergia de otimizações transforma o comportamento empírico do algoritmo, habilitando-o a superar de forma esmagadora os métodos tradicionais de caminhos aumentantes em instâncias complexas. A materialização destas otimizações avançadas encontra-se detalhada no Código~\ref{lst:pushrelabel_improved} (disponível no Apêndice~\ref{ap:pushrelabel_improved}).
+Para maximizar este ganho analítico, a implementação C++ desenvolvida neste projeto associa a Heurística de Lacuna à regra de seleção do vértice ativo mais alto (\textit{Highest-Label Selection}). Priorizando o escoamento a partir dos cumes topológicos, o algoritmo garante que o excesso seja empurrado agressivamente para os níveis inferiores, acelerando o encontro com o sumidouro ou a formação precoce de lacunas. Esta sinergia de otimizações transforma o comportamento empírico do algoritmo, habilitando-o a superar de forma esmagadora os métodos tradicionais de caminhos aumentantes em instâncias complexas. A materialização destas otimizações avançadas encontra-se detalhada no Código~\ref{lst:push_relabel_improved} (disponível no Apêndice~\ref{ap:push_relabel_improved}).
 
 \subsection{Aplicações e Reduções: Otimização em Digrafos Bipartidos}
 
@@ -495,9 +495,9 @@ public:
 \end{lstlisting}
 
 \section{Implementação da Classe EdmondsKarp}
-\label{ap:edmondskarp}
+\label{ap:edmonds_karp}
 
-\begin{lstlisting}[caption={Implementação em C++ da classe \lstinline{EdmondsKarp}, baseada na seleção iterativa de caminhos mais curtos via Busca em Largura (BFS).}, label={lst:edmondskarp}]
+\begin{lstlisting}[caption={Implementação em C++ da classe \lstinline{EdmondsKarp}, baseada na seleção iterativa de caminhos mais curtos via Busca em Largura (BFS).}, label={lst:edmonds_karp}]
 class EdmondsKarp : public FlowNetwork
 {
 private:
@@ -685,9 +685,9 @@ public:
 \end{lstlisting}
 
 \section{Implementação da Classe PushRelabel}
-\label{ap:pushrelabel}
+\label{ap:push_relabel}
 
-\begin{lstlisting}[caption={Implementação em C++ da classe \lstinline{PushRelabel}, baseada em pré-fluxos topológicos e política de processamento em fila (FIFO).}, label={lst:pushrelabel}]
+\begin{lstlisting}[caption={Implementação em C++ da classe \lstinline{PushRelabel}, baseada em pré-fluxos topológicos e política de processamento em fila (FIFO).}, label={lst:push_relabel}]
 class PushRelabel : public FlowNetwork
 {
 private:
@@ -821,9 +821,9 @@ public:
 \end{lstlisting}
 
 \section{Implementação da Classe PushRelabelImproved}
-\label{ap:pushrelabel_improved}
+\label{ap:push_relabel_improved}
 
-\begin{lstlisting}[caption={Implementação em C++ da classe \lstinline{PushRelabelImproved}, otimizada empiricamente com a Heurística de Lacuna (\textit{Gap Heuristic}).}, label={lst:pushrelabel_improved}]
+\begin{lstlisting}[caption={Implementação em C++ da classe \lstinline{PushRelabelImproved}, otimizada empiricamente com a Heurística de Lacuna (\textit{Gap Heuristic}).}, label={lst:push_relabel_improved}]
 class PushRelabelImproved : public FlowNetwork
 {
 private:
