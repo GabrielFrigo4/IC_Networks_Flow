@@ -93,9 +93,7 @@
  	{
  		const Size next_node = edges[edge_id].to;
  		const Long residual_capacity = get_residual_capacity(edge_id);
- 		const Long flow_to_push = std::min(
- 		    excess[current_node], residual_capacity
- 		);
+ 		const Long flow_to_push = std::min(excess[current_node], residual_capacity);
 
  		if (flow_to_push == 0)
  			return;
@@ -191,9 +189,7 @@
  				for (const Size edge_id : adj[current_node])
  				{
  					const Size next_node = edges[edge_id].to;
- 					const Long residual_capacity = get_residual_capacity(
- 					    edge_id
- 					);
+ 					const Long residual_capacity = get_residual_capacity(edge_id);
 
  					if (residual_capacity <= 0 ||
  					    height[current_node] != height[next_node] + 1)

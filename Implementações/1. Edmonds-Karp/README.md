@@ -108,9 +108,7 @@
  					continue;
 
  				parent_edge[next_node] = edge_id;
- 				const Long pushed_flow = std::min(
- 				    current_flow, residual_capacity
- 				);
+ 				const Long pushed_flow = std::min(current_flow, residual_capacity);
 
  				if (next_node == sink)
  					return pushed_flow;
@@ -122,8 +120,8 @@
  	}
 
  	void update_path_flow(
- 	    const Size source, const Size sink,
- 	    const std::vector<Size> &parent_edge, const Long new_flow
+ 	    const Size source, const Size sink, const std::vector<Size> &parent_edge,
+ 	    const Long new_flow
  	)
  	{
  		Size current_node = sink;

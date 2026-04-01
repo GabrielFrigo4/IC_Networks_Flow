@@ -2,7 +2,6 @@
 #include <iostream>
 #include <limits>
 #include <memory>
-#include <queue>
 #include <vector>
 
 using Long = long long;
@@ -80,9 +79,7 @@ private:
 	std::vector<std::vector<Size>> active_buckets;
 	Size highest_active;
 
-	void enqueue_active_node(
-	    const Size node, const Size source, const Size sink
-	)
+	void enqueue_active_node(const Size node, const Size source, const Size sink)
 	{
 		if (node == source || node == sink || excess[node] <= 0)
 		{
@@ -106,9 +103,7 @@ private:
 			return;
 		}
 
-		const Long flow_to_push = std::min(
-		    excess[current_node], residual_capacity
-		);
+		const Long flow_to_push = std::min(excess[current_node], residual_capacity);
 		push_flow(edge_id, flow_to_push);
 		excess[current_node] -= flow_to_push;
 		excess[next_node] += flow_to_push;
@@ -137,9 +132,7 @@ private:
 		}
 	}
 
-	void relabel_node(
-	    const Size current_node, const Size source, const Size sink
-	)
+	void relabel_node(const Size current_node, const Size source, const Size sink)
 	{
 		Size min_height = MAX;
 		for (const Size edge_id : adj[current_node])
@@ -170,9 +163,7 @@ private:
 		}
 	}
 
-	void discharge_node(
-	    const Size current_node, const Size source, const Size sink
-	)
+	void discharge_node(const Size current_node, const Size source, const Size sink)
 	{
 		while (excess[current_node] > 0)
 		{
@@ -269,8 +260,7 @@ public:
 };
 
 void print_matches(
-    const std::unique_ptr<FlowNetwork> &fn, const Size num_boys,
-    const Size num_girls
+    const std::unique_ptr<FlowNetwork> &fn, const Size num_boys, const Size num_girls
 )
 {
 	for (const auto &edge : fn->get_edges())

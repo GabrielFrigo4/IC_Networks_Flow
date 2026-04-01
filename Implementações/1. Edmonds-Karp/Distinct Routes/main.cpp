@@ -95,9 +95,7 @@ private:
 					continue;
 
 				parent_edge[next_node] = edge_id;
-				const Long pushed_flow = std::min(
-				    current_flow, residual_capacity
-				);
+				const Long pushed_flow = std::min(current_flow, residual_capacity);
 
 				if (next_node == sink)
 					return pushed_flow;
@@ -109,8 +107,8 @@ private:
 	}
 
 	void update_path_flow(
-	    const Size source, const Size sink,
-	    const std::vector<Size> &parent_edge, const Long new_flow
+	    const Size source, const Size sink, const std::vector<Size> &parent_edge,
+	    const Long new_flow
 	)
 	{
 		Size current_node = sink;
@@ -157,8 +155,7 @@ public:
 };
 
 void print_disjoint_paths(
-    const std::unique_ptr<FlowNetwork> &fn, const Size num_nodes,
-    const Long max_flow
+    const std::unique_ptr<FlowNetwork> &fn, const Size num_nodes, const Long max_flow
 )
 {
 	const auto &edges = fn->get_edges();

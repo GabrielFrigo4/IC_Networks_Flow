@@ -32,26 +32,33 @@
 \definecolor{backcolour}{rgb}{0.9,0.9,0.9}
 
 \lstset{
+    % Formatação
     language=C++,
+    basicstyle=\ttfamily\small,
+    tabsize=4,
+    keepspaces=true,
+    columns=fullflexible,
+    lineskip=-2pt,
+    % Cores
     backgroundcolor=\color{backcolour},
     commentstyle=\color{codegreen},
     keywordstyle=\color{blue}\bfseries,
-    numberstyle=\tiny\color{codegray},
     stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\normalsize,
-    breakatwhitespace=false,
-    breaklines=true,
-    captionpos=b,
-    keepspaces=true,
+    % Numeração
     numbers=left,
-    numbersep=5pt,
+    numberstyle=\tiny\color{codegray},
+    numbersep=6pt,
+    % Quebras
+    breaklines=true,
+    breakatwhitespace=false,
+    % Invisíveis
     showspaces=false,
     showstringspaces=false,
     showtabs=false,
-    tabsize=2,
-    frame=shadowbox,
+    % Layout
+    frame=single,
     rulecolor=\color{black},
-    columns=fullflexible
+    captionpos=b
 }
 
 \usepackage{helvet}
@@ -79,10 +86,9 @@
 \vspace{0.8cm}
 
 \noindent \textbf{Relatório Parcial de Iniciação Científica referente ao Edital:} 01/2025 PIC\slash PIBIC\slash PIBITI\slash PIBIC-AF \\[0.5cm]
-\noindent \emph{Na capa deverá conter tanto a assinatura do aluno quanto a assinatura do orientador}\\[0.5cm]
-\noindent \textbf{Nome do aluno:} Gabriel Frigo \\
+\noindent \textbf{Nome do aluno:} Gabriel Frigo \\[0.5cm]
 \noindent \textbf{Assinatura do aluno:} \hrulefill \\[0.5cm]
-\noindent \textbf{Nome do orientador:} Cristiane Maria Sato \\
+\noindent \textbf{Nome do orientador:} Cristiane Maria Sato \\[0.5cm]
 \noindent \textbf{Assinatura do orientador:} \hrulefill \\[0.5cm]
 \noindent \textbf{Título do projeto:} Problemas de Fluxos em Redes: Teoria, Algoritmos e Implementações \\[0.5cm]
 \noindent \textbf{Palavras-chave do projeto:} Otimização Combinatória, Teoria dos Digrafos, Fluxos \\[0.5cm]
@@ -386,7 +392,7 @@ A técnica de \textit{Vertex Splitting} altera a topologia do digrafo original $
     \item Todas as arcos que originalmente divergiam de $v$ no digrafo $D$ passam a emergir exclusivamente a partir de $v_{out}$ (com capacidade 1 ou infinita, dependendo da formulação).
 \end{enumerate}
 
-Esta intervenção estrutural é genial em sua simplicidade: ao forçar todo o fluxo que transita pelo nó original $v$ a atravessar um "gargalo" artificial $(v_{in}, v_{out})$ de capacidade $1$, a rede impõe fisicamente que não mais do que $1$ unidade de fluxo possa cruzar aquele vértice geométrico. Ao submeter esta nova topologia estendida $D'$ à arquitetura orientada a objetos (Dinic ou Push-Relabel), o fluxo máximo computado atestará rigorosamente o número máximo de rotas disjuntas por vértices, resolvendo o problema de conectividade nodal sem exigir nenhuma alteração no código do algoritmo subjacente (veja~\cite{korte2018combinatorial}).
+Esta intervenção estrutural é genial em sua simplicidade: ao forçar todo o fluxo que transita pelo nó original $v$ a atravessar um ``gargalo'' artificial $(v_{in}, v_{out})$ de capacidade $1$, a rede impõe fisicamente que não mais do que $1$ unidade de fluxo possa cruzar aquele vértice geométrico. Ao submeter esta nova topologia estendida $D'$ à arquitetura orientada a objetos (Dinic ou Push-Relabel), o fluxo máximo computado atestará rigorosamente o número máximo de rotas disjuntas por vértices, resolvendo o problema de conectividade nodal sem exigir nenhuma alteração no código do algoritmo subjacente (veja~\cite{korte2018combinatorial}).
 
 \subsubsection{O Teorema de Menger e a Dualidade da Conectividade}
 
@@ -428,6 +434,7 @@ Desta forma, a infraestrutura estabelecida nesta primeira fase oferece total seg
 \newpage
 \appendix
 
+\begin{center}{\Large\textbf{Apêndice}}\end{center}
 \section{Implementação da Interface Base ``Flow-Network''}
 \label{ap:flownetwork}
 
@@ -505,6 +512,7 @@ public:
 };
 \end{lstlisting}
 
+\newpage
 \section{Implementação da Classe ``Edmonds-Karp''}
 \label{ap:edmonds_karp}
 
@@ -534,9 +542,7 @@ private:
 					continue;
 
 				parent_edge[next_node] = edge_id;
-				const Long pushed_flow = std::min(
-				    current_flow, residual_capacity
-				);
+				const Long pushed_flow = std::min(current_flow, residual_capacity);
 
 				if (next_node == sink)
 					return pushed_flow;
@@ -548,8 +554,8 @@ private:
 	}
 
 	void update_path_flow(
-	    const Size source, const Size sink,
-	    const std::vector<Size> &parent_edge, const Long new_flow
+	    const Size source, const Size sink, const std::vector<Size> &parent_edge,
+	    const Long new_flow
 	)
 	{
 		Size current_node = sink;
@@ -596,6 +602,7 @@ public:
 };
 \end{lstlisting}
 
+\newpage
 \section{Implementação da Classe ``Dinic''}
 \label{ap:dinic}
 
@@ -639,8 +646,7 @@ private:
 		if (flow_pushed == 0 || current_node == sink)
 			return flow_pushed;
 
-		for (Size &ptr = next_edge_ptr[current_node];
-		     ptr < adj[current_node].size();
+		for (Size &ptr = next_edge_ptr[current_node]; ptr < adj[current_node].size();
 		     ++ptr)
 		{
 			const Size edge_id = adj[current_node][ptr];
@@ -696,7 +702,7 @@ public:
 	}
 };
 \end{lstlisting}
-
+\newpage
 \section{Implementação da Classe ``Push-Relabel''}
 \label{ap:push_relabel}
 
@@ -711,9 +717,7 @@ private:
 	{
 		const Size next_node = edges[edge_id].to;
 		const Long residual_capacity = get_residual_capacity(edge_id);
-		const Long flow_to_push = std::min(
-		    excess[current_node], residual_capacity
-		);
+		const Long flow_to_push = std::min(excess[current_node], residual_capacity);
 
 		if (flow_to_push == 0)
 			return;
@@ -809,9 +813,7 @@ public:
 				for (const Size edge_id : adj[current_node])
 				{
 					const Size next_node = edges[edge_id].to;
-					const Long residual_capacity = get_residual_capacity(
-					    edge_id
-					);
+					const Long residual_capacity = get_residual_capacity(edge_id);
 
 					if (residual_capacity <= 0 ||
 					    height[current_node] != height[next_node] + 1)
@@ -845,7 +847,7 @@ public:
 };
 \end{lstlisting}
 
-\section{Implementação da Classe ``Push-Relabel Improved''}
+\newpage\section{Implementação da Classe ``Push-Relabel Improved''}
 \label{ap:push_relabel_improved}
 
 \begin{lstlisting}[caption={Implementação em C++ da classe \lstinline{PushRelabelImproved}, otimizada empiricamente com a Heurística de Lacuna (\textit{Gap Heuristic}).}, label={lst:push_relabel_improved}]
@@ -859,9 +861,7 @@ private:
 	std::vector<std::vector<Size>> active_buckets;
 	Size highest_active;
 
-	void enqueue_active_node(
-	    const Size node, const Size source, const Size sink
-	)
+	void enqueue_active_node(const Size node, const Size source, const Size sink)
 	{
 		if (node == source || node == sink || excess[node] <= 0)
 		{
@@ -885,9 +885,7 @@ private:
 			return;
 		}
 
-		const Long flow_to_push = std::min(
-		    excess[current_node], residual_capacity
-		);
+		const Long flow_to_push = std::min(excess[current_node], residual_capacity);
 		push_flow(edge_id, flow_to_push);
 		excess[current_node] -= flow_to_push;
 		excess[next_node] += flow_to_push;
@@ -916,9 +914,7 @@ private:
 		}
 	}
 
-	void relabel_node(
-	    const Size current_node, const Size source, const Size sink
-	)
+	void relabel_node(const Size current_node, const Size source, const Size sink)
 	{
 		Size min_height = MAX;
 		for (const Size edge_id : adj[current_node])
@@ -949,9 +945,7 @@ private:
 		}
 	}
 
-	void discharge_node(
-	    const Size current_node, const Size source, const Size sink
-	)
+	void discharge_node(const Size current_node, const Size source, const Size sink)
 	{
 		while (excess[current_node] > 0)
 		{

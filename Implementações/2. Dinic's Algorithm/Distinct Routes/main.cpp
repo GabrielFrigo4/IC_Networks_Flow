@@ -109,8 +109,7 @@ private:
 		if (flow_pushed == 0 || current_node == sink)
 			return flow_pushed;
 
-		for (Size &ptr = next_edge_ptr[current_node];
-		     ptr < adj[current_node].size();
+		for (Size &ptr = next_edge_ptr[current_node]; ptr < adj[current_node].size();
 		     ++ptr)
 		{
 			const Size edge_id = adj[current_node][ptr];
@@ -167,8 +166,7 @@ public:
 };
 
 void print_disjoint_paths(
-    const std::unique_ptr<FlowNetwork> &fn, const Size num_nodes,
-    const Long max_flow
+    const std::unique_ptr<FlowNetwork> &fn, const Size num_nodes, const Long max_flow
 )
 {
 	const auto &edges = fn->get_edges();
