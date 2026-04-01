@@ -108,6 +108,46 @@ private:
 		}
 	}
 
+	void discharge_node(
+	    const Size current_node, std::queue<Size> &active_queue,
+	    std::vector<bool> &in_queue, const Size source, const Size sink
+	)
+	{
+		while (excess[current_node] > 0)
+		{
+			bool has_pushed = false;
+			for (const Size edge_id : adj[current_node])
+			{
+				const Size next_node = edges[edge_id].to;
+				const Long residual_capacity = get_residual_capacity(edge_id);
+
+				if (residual_capacity <= 0 ||
+				    height[current_node] != height[next_node] + 1)
+				{
+					continue;
+				}
+
+				push_preflow(current_node, edge_id);
+				has_pushed = true;
+
+				if (next_node != source && next_node != sink &&
+				    !in_queue[next_node] && excess[next_node] > 0)
+				{
+					active_queue.push(next_node);
+					in_queue[next_node] = true;
+				}
+
+				if (excess[current_node] == 0)
+					break;
+			}
+
+			if (!has_pushed)
+			{
+				relabel_node(current_node);
+			}
+		}
+	}
+
 	void initialize_preflow(
 	    const Size source, const Size sink, std::queue<Size> &active_queue,
 	    std::vector<bool> &in_queue
@@ -169,40 +209,7 @@ public:
 			const Size current_node = active_queue.front();
 			active_queue.pop();
 			in_queue[current_node] = false;
-
-			while (excess[current_node] > 0)
-			{
-				bool has_pushed = false;
-				for (const Size edge_id : adj[current_node])
-				{
-					const Size next_node = edges[edge_id].to;
-					const Long residual_capacity = get_residual_capacity(edge_id);
-
-					if (residual_capacity <= 0 ||
-					    height[current_node] != height[next_node] + 1)
-					{
-						continue;
-					}
-
-					push_preflow(current_node, edge_id);
-					has_pushed = true;
-
-					if (next_node != source && next_node != sink &&
-					    !in_queue[next_node] && excess[next_node] > 0)
-					{
-						active_queue.push(next_node);
-						in_queue[next_node] = true;
-					}
-
-					if (excess[current_node] == 0)
-						break;
-				}
-
-				if (!has_pushed)
-				{
-					relabel_node(current_node);
-				}
-			}
+			discharge_node(current_node, active_queue, in_queue, source, sink);
 		}
 
 		return excess[sink];
