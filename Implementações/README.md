@@ -32,6 +32,12 @@
  class FlowNetwork
  {
  public:
+ 	struct Edge
+ 	{
+ 		Size from, to;
+ 		Long capacity, flow;
+ 	};
+
  	explicit FlowNetwork(const Size n) : size(n), adj(n) {}
  	virtual ~FlowNetwork() = default;
 
@@ -67,11 +73,6 @@
  	}
 
  protected:
- 	struct Edge
- 	{
- 		Size from, to;
- 		Long capacity, flow;
- 	};
  	Size size;
  	std::vector<Edge> edges;
  	std::vector<std::vector<Size>> adj;

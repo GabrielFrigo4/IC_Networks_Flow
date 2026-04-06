@@ -14,6 +14,12 @@ constexpr Size MAX = std::numeric_limits<Size>::max() >> 8;
 class FlowNetwork
 {
 public:
+	struct Edge
+	{
+		Size from, to;
+		Long capacity, flow;
+	};
+
 	explicit FlowNetwork(const Size n) : size(n), adj(n) {}
 	virtual ~FlowNetwork() = default;
 
@@ -49,11 +55,6 @@ public:
 	}
 
 protected:
-	struct Edge
-	{
-		Size from, to;
-		Long capacity, flow;
-	};
 	Size size;
 	std::vector<Edge> edges;
 	std::vector<std::vector<Size>> adj;
