@@ -1,4 +1,10 @@
-# TO-DO
+# TO-DO: Improve
+ - [ ] Melhorar a parte do `Ford-Fulkerson`
+ - [ ] Imitar a estrutura do `Ford-Fulkerson` para o `Push-Relabel`
+
+--
+
+# TO-DO: Geral
  - [X] Implementar `Ford-Fulkerson`
  - [X] Implementar `Edmonds-Karp`
  - [X] Implementar `Dinic's Algorithm`

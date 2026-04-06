@@ -13,27 +13,6 @@ constexpr Size MAX = std::numeric_limits<Size>::max() >> 8;
 
 class FlowNetwork
 {
-protected:
-	struct Edge
-	{
-		Size from, to;
-		Long capacity, flow;
-	};
-	Size size;
-	std::vector<Edge> edges;
-	std::vector<std::vector<Size>> adj;
-
-	[[nodiscard]] Long get_residual_capacity(const Size edge_id) const
-	{
-		return edges[edge_id].capacity - edges[edge_id].flow;
-	}
-
-	void push_flow(const Size edge_id, const Long flow_amount)
-	{
-		edges[edge_id].flow += flow_amount;
-		edges[edge_id ^ 1ULL].flow -= flow_amount;
-	}
-
 public:
 	explicit FlowNetwork(const Size n) : size(n), adj(n) {}
 	virtual ~FlowNetwork() = default;
@@ -68,10 +47,64 @@ public:
 	{
 		return adj;
 	}
+
+protected:
+	struct Edge
+	{
+		Size from, to;
+		Long capacity, flow;
+	};
+	Size size;
+	std::vector<Edge> edges;
+	std::vector<std::vector<Size>> adj;
+
+	[[nodiscard]] Long get_residual_capacity(const Size edge_id) const
+	{
+		return edges[edge_id].capacity - edges[edge_id].flow;
+	}
+
+	void push_flow(const Size edge_id, const Long flow_amount)
+	{
+		edges[edge_id].flow += flow_amount;
+		edges[edge_id ^ 1ULL].flow -= flow_amount;
+	}
 };
 
 class EdmondsKarp : public FlowNetwork
 {
+public:
+	explicit EdmondsKarp(const Size n) : FlowNetwork(n) {}
+
+	static std::unique_ptr<FlowNetwork> create(const Size n)
+	{
+		return std::make_unique<EdmondsKarp>(n);
+	}
+
+	std::unique_ptr<FlowNetwork> make(const Size n) const override
+	{
+		return std::make_unique<EdmondsKarp>(n);
+	}
+
+	std::unique_ptr<FlowNetwork> clone() const override
+	{
+		return std::make_unique<EdmondsKarp>(*this);
+	}
+
+	Long compute_max_flow(const Size source, const Size sink) override
+	{
+		Long total_flow = 0;
+		Long new_flow = 0;
+		std::vector<Size> parent_edge(size);
+
+		while ((new_flow = bfs(source, sink, parent_edge)) > 0)
+		{
+			total_flow += new_flow;
+			update_path_flow(source, sink, parent_edge, new_flow);
+		}
+
+		return total_flow;
+	}
+
 private:
 	Long bfs(const Size source, const Size sink, std::vector<Size> &parent_edge)
 	{
@@ -118,39 +151,6 @@ private:
 			push_flow(edge_id, new_flow);
 			current_node = edges[edge_id].from;
 		}
-	}
-
-public:
-	explicit EdmondsKarp(const Size n) : FlowNetwork(n) {}
-
-	static std::unique_ptr<FlowNetwork> create(const Size n)
-	{
-		return std::make_unique<EdmondsKarp>(n);
-	}
-
-	std::unique_ptr<FlowNetwork> make(const Size n) const override
-	{
-		return std::make_unique<EdmondsKarp>(n);
-	}
-
-	std::unique_ptr<FlowNetwork> clone() const override
-	{
-		return std::make_unique<EdmondsKarp>(*this);
-	}
-
-	Long compute_max_flow(const Size source, const Size sink) override
-	{
-		Long total_flow = 0;
-		Long new_flow = 0;
-		std::vector<Size> parent_edge(size);
-
-		while ((new_flow = bfs(source, sink, parent_edge)) > 0)
-		{
-			total_flow += new_flow;
-			update_path_flow(source, sink, parent_edge, new_flow);
-		}
-
-		return total_flow;
 	}
 };
 

@@ -31,27 +31,6 @@
 
  class FlowNetwork
  {
- protected:
- 	struct Edge
- 	{
- 		Size from, to;
- 		Long capacity, flow;
- 	};
- 	Size size;
- 	std::vector<Edge> edges;
- 	std::vector<std::vector<Size>> adj;
-
- 	[[nodiscard]] Long get_residual_capacity(const Size edge_id) const
- 	{
- 		return edges[edge_id].capacity - edges[edge_id].flow;
- 	}
-
- 	void push_flow(const Size edge_id, const Long flow_amount)
- 	{
- 		edges[edge_id].flow += flow_amount;
- 		edges[edge_id ^ 1ULL].flow -= flow_amount;
- 	}
-
  public:
  	explicit FlowNetwork(const Size n) : size(n), adj(n) {}
  	virtual ~FlowNetwork() = default;
@@ -85,6 +64,27 @@
  	[[nodiscard]] const std::vector<std::vector<Size>> &get_adj() const
  	{
  		return adj;
+ 	}
+
+ protected:
+ 	struct Edge
+ 	{
+ 		Size from, to;
+ 		Long capacity, flow;
+ 	};
+ 	Size size;
+ 	std::vector<Edge> edges;
+ 	std::vector<std::vector<Size>> adj;
+
+ 	[[nodiscard]] Long get_residual_capacity(const Size edge_id) const
+ 	{
+ 		return edges[edge_id].capacity - edges[edge_id].flow;
+ 	}
+
+ 	void push_flow(const Size edge_id, const Long flow_amount)
+ 	{
+ 		edges[edge_id].flow += flow_amount;
+ 		edges[edge_id ^ 1ULL].flow -= flow_amount;
  	}
  };
  ```

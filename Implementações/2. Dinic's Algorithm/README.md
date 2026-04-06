@@ -26,27 +26,6 @@
 
  class FlowNetwork
  {
- protected:
- 	struct Edge
- 	{
- 		Size from, to;
- 		Long capacity, flow;
- 	};
- 	Size size;
- 	std::vector<Edge> edges;
- 	std::vector<std::vector<Size>> adj;
-
- 	[[nodiscard]] Long get_residual_capacity(const Size edge_id) const
- 	{
- 		return edges[edge_id].capacity - edges[edge_id].flow;
- 	}
-
- 	void push_flow(const Size edge_id, const Long flow_amount)
- 	{
- 		edges[edge_id].flow += flow_amount;
- 		edges[edge_id ^ 1ULL].flow -= flow_amount;
- 	}
-
  public:
  	explicit FlowNetwork(const Size n) : size(n), adj(n) {}
  	virtual ~FlowNetwork() = default;
@@ -81,10 +60,63 @@
  	{
  		return adj;
  	}
+
+ protected:
+ 	struct Edge
+ 	{
+ 		Size from, to;
+ 		Long capacity, flow;
+ 	};
+ 	Size size;
+ 	std::vector<Edge> edges;
+ 	std::vector<std::vector<Size>> adj;
+
+ 	[[nodiscard]] Long get_residual_capacity(const Size edge_id) const
+ 	{
+ 		return edges[edge_id].capacity - edges[edge_id].flow;
+ 	}
+
+ 	void push_flow(const Size edge_id, const Long flow_amount)
+ 	{
+ 		edges[edge_id].flow += flow_amount;
+ 		edges[edge_id ^ 1ULL].flow -= flow_amount;
+ 	}
  };
 
  class Dinic : public FlowNetwork
  {
+ public:
+ 	explicit Dinic(const Size n) : FlowNetwork(n), level(n), next_edge_ptr(n) {}
+
+ 	static std::unique_ptr<FlowNetwork> create(const Size n)
+ 	{
+ 		return std::make_unique<Dinic>(n);
+ 	}
+
+ 	std::unique_ptr<FlowNetwork> make(const Size n) const override
+ 	{
+ 		return std::make_unique<Dinic>(n);
+ 	}
+
+ 	std::unique_ptr<FlowNetwork> clone() const override
+ 	{
+ 		return std::make_unique<Dinic>(*this);
+ 	}
+
+ 	Long compute_max_flow(const Size source, const Size sink) override
+ 	{
+ 		Long total_flow = 0;
+ 		while (bfs(source, sink))
+ 		{
+ 			std::fill(next_edge_ptr.begin(), next_edge_ptr.end(), 0);
+ 			while (const Long flow_pushed = dfs(source, sink, INF))
+ 			{
+ 				total_flow += flow_pushed;
+ 			}
+ 		}
+ 		return total_flow;
+ 	}
+
  private:
  	std::vector<Size> level;
  	std::vector<Size> next_edge_ptr;
@@ -143,38 +175,6 @@
  			return flow_transmitted;
  		}
  		return 0;
- 	}
-
- public:
- 	explicit Dinic(const Size n) : FlowNetwork(n), level(n), next_edge_ptr(n) {}
-
- 	static std::unique_ptr<FlowNetwork> create(const Size n)
- 	{
- 		return std::make_unique<Dinic>(n);
- 	}
-
- 	std::unique_ptr<FlowNetwork> make(const Size n) const override
- 	{
- 		return std::make_unique<Dinic>(n);
- 	}
-
- 	std::unique_ptr<FlowNetwork> clone() const override
- 	{
- 		return std::make_unique<Dinic>(*this);
- 	}
-
- 	Long compute_max_flow(const Size source, const Size sink) override
- 	{
- 		Long total_flow = 0;
- 		while (bfs(source, sink))
- 		{
- 			std::fill(next_edge_ptr.begin(), next_edge_ptr.end(), 0);
- 			while (const Long flow_pushed = dfs(source, sink, INF))
- 			{
- 				total_flow += flow_pushed;
- 			}
- 		}
- 		return total_flow;
  	}
  };
  ```
