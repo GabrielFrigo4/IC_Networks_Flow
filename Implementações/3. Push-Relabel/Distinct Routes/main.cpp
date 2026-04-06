@@ -21,8 +21,8 @@ public:
 	virtual std::unique_ptr<FlowNetwork> clone() const = 0;
 
 	virtual void add_edge(
-		const Size from, const Size to, const Long capacity,
-		const Long reverse_capacity = 0
+	    const Size from, const Size to, const Long capacity,
+	    const Long reverse_capacity = 0
 	)
 	{
 		adj[from].push_back(edges.size());
@@ -73,7 +73,10 @@ protected:
 class PushRelabel : public FlowNetwork
 {
 public:
-	explicit PushRelabel(const Size n) : FlowNetwork(n), height(n), excess(n), next_edge_ptr(n) {}
+	explicit PushRelabel(const Size n)
+	    : FlowNetwork(n), height(n), excess(n), next_edge_ptr(n)
+	{
+	}
 
 	static std::unique_ptr<FlowNetwork> create(const Size n)
 	{
@@ -114,8 +117,8 @@ private:
 	std::vector<Size> next_edge_ptr;
 
 	void initialize_preflow(
-		const Size source, const Size sink, std::queue<Size> &active_queue,
-		std::vector<bool> &in_queue
+	    const Size source, const Size sink, std::queue<Size> &active_queue,
+	    std::vector<bool> &in_queue
 	)
 	{
 		std::fill(height.begin(), height.end(), 0);
@@ -146,8 +149,8 @@ private:
 	}
 
 	void discharge_node(
-		const Size current_node, std::queue<Size> &active_queue,
-		std::vector<bool> &in_queue, const Size source, const Size sink
+	    const Size current_node, std::queue<Size> &active_queue,
+	    std::vector<bool> &in_queue, const Size source, const Size sink
 	)
 	{
 		while (excess[current_node] > 0)
@@ -155,7 +158,7 @@ private:
 			if (next_edge_ptr[current_node] >= adj[current_node].size())
 			{
 				relabel_node(current_node);
-				next_edge_ptr[current_node] = 0; 
+				next_edge_ptr[current_node] = 0;
 				continue;
 			}
 
@@ -163,12 +166,13 @@ private:
 			const Size next_node = edges[edge_id].to;
 			const Long residual_capacity = get_residual_capacity(edge_id);
 
-			if (residual_capacity > 0 && height[current_node] == height[next_node] + 1)
+			if (residual_capacity > 0 &&
+			    height[current_node] == height[next_node] + 1)
 			{
 				push_preflow(current_node, edge_id);
 
 				if (next_node != source && next_node != sink &&
-					!in_queue[next_node] && excess[next_node] > 0)
+				    !in_queue[next_node] && excess[next_node] > 0)
 				{
 					active_queue.push(next_node);
 					in_queue[next_node] = true;
@@ -215,7 +219,7 @@ private:
 };
 
 void print_disjoint_paths(
-	const std::unique_ptr<FlowNetwork> &fn, const Size num_nodes, const Long max_flow
+    const std::unique_ptr<FlowNetwork> &fn, const Size num_nodes, const Long max_flow
 )
 {
 	const auto &edges = fn->get_edges();
@@ -233,7 +237,7 @@ void print_disjoint_paths(
 			for (const Size edge_id : adj[curr])
 			{
 				if (edge_id % 2 != 0 || edges[edge_id].flow == 0 ||
-					used_edge[edge_id])
+				    used_edge[edge_id])
 				{
 					continue;
 				}
