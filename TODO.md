@@ -1,8 +1,14 @@
+# TO-DO: Fixing
+ - [ ] Teoria dos Digrafos
+ - [ ] Digrafos Direcionados
+
+--- 
+
 # TO-DO: Improve
  - [ ] Melhorar a parte do `Ford-Fulkerson`
  - [ ] Imitar a estrutura do `Ford-Fulkerson` para o `Push-Relabel`
 
---
+---
 
 # TO-DO: Geral
  - [X] Implementar `Ford-Fulkerson`
